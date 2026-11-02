@@ -64,6 +64,10 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   destinations (Goods Receipt, Put Away, Stock Overview, Goods Movement, Pick & Pack) in that order, mark
   the current destination as selected, keep it consistent with the toolbar tabs (expanded sidebar =
   `Tabs=Off`, collapsed = `Tabs=On`), and remove placeholder labels. Titled sections are expandable.
+- Settings- and form-like tables use `AppGroupedTable` with `AppTableRow` (title, optional subtitle and
+  leading image, trailing control such as `AppTableDetail`, `Toggle`, `Stepper`, `DatePicker` or a `Menu`),
+  `AppTableActionRow` ("Row - Button"), `AppSectionTitle` and `AppSegmentedControl` (Figma "Table" page).
+  Use native controls for the trailing part. For columns of records use `ListTable`, not these.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
