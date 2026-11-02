@@ -53,6 +53,11 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   (use an alert). Set `AppNotificationContent(title:message:systemImage:)` on a binding and the modifier
   shows it centred at the top, 8 pt below the status bar and above everything, then dismisses it. Titles
   under about four words, one-sentence messages. `stackedBehind:` only illustrates a notification history.
+- Screen headings, navigation, scan and search use `AppToolbar` (Figma "Toolbar"): pick the preset by
+  screen type — `.overview` / `.overviewInline` (heading and search), `.detailSearch` (back, header and
+  subheader, scanner, search) or `.detail` (back and header/subheader, no scanner or search). Pass
+  `tabs: AppToolbarTabs(...)` when the sidebar is collapsed (Tabs=On) and nothing when it is expanded
+  (Tabs=Off). Give it a clear title/subtitle, relevant actions only, and the full container width.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
