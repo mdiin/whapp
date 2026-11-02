@@ -5,12 +5,12 @@
 #   scripts/test.sh --only AppCoreTests/X    only the tests of suite X (Swift Testing: the type's name)
 #   scripts/test.sh --app                    only the build of the app
 #
-# SIMULATOR overrides the simulator's name (default "iPhone 16"). If it isn't installed, the available
+# SIMULATOR overrides the simulator's name (default "iPhone 17"). If it isn't installed, the available
 # ones are listed: pick one, and record it in the README, as reference images must be recorded on it.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-simulator="${SIMULATOR:-iPhone 16}"
-destination="platform=iOS Simulator,name=$simulator"
+simulator="${SIMULATOR:-iPhone 17}"
+destination="platform=iOS Simulator,name=$simulator,OS=${SIMULATOR_OS:-26.5}"
 
 if ! xcrun simctl list devices available | grep -q "    $simulator ("; then
   echo "Simulator \"$simulator\" is not available. Available devices:" >&2
@@ -34,7 +34,7 @@ if [ "$tests" = yes ]; then
   # A package with one library gets a scheme named after it; with more, the tests are in "<name>-Package".
   scheme=AppCore
   if xcodebuild -list 2>/dev/null | grep -q "AppCore-Package"; then scheme=AppCore-Package; fi
-  xcodebuild test -scheme "$scheme" -destination "$destination" -skipMacroValidation -quiet "${only[@]}"
+  xcodebuild test -scheme "$scheme" -destination "$destination" -skipMacroValidation -quiet ${only[@]+"${only[@]}"}
 fi
 
 if [ "$app" = yes ]; then

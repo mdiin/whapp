@@ -12,9 +12,9 @@ No slices are included: each one is generated from a board's `slice.json`.
 
 1. **Name the app.** In `Config/Base.xcconfig`, set `PRODUCT_NAME` and `PRODUCT_BUNDLE_IDENTIFIER` (and
    `DEVELOPMENT_TEAM` to run on a device). The project file needs no renaming.
-2. **Install the tools.** Xcode 16 or later with an iOS 18 simulator, and `mise install` for Node (the
+2. **Install the tools.** Xcode 26 with the iOS 26.5 simulator, and `mise install` for Node (the
    `.build-kit` runtime needs it).
-3. **Pick the simulator.** `scripts/test.sh` runs everything on `iPhone 16`. If your Xcode doesn't have it,
+3. **Pick the simulator.** `scripts/test.sh` runs everything on `iPhone 17` (iOS 26.5). If your Xcode doesn't have it,
    set `SIMULATOR` to one it has (`xcrun simctl list devices available`), and change the default in the
    script: screen snapshots are recorded on that simulator and only compare equal on it.
 4. **Describe the design system** in the project's `CLAUDE.md` before building screens (see "Styling").

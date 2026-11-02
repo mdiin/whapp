@@ -33,7 +33,7 @@ struct ListTableColumn<Row> {
 /// ])
 /// ```
 ///
-/// Rows are `Identifiable`. Columns share the width; a column never clips its text (it wraps instead).
+/// Rows are `Identifiable`. Each column is at least as wide as its widest value, so a value is never split or clipped; spare width is shared out.
 struct ListTable<Row: Identifiable>: View {
     private let rows: [Row]
     private let columns: [ListTableColumn<Row>]
@@ -52,6 +52,7 @@ struct ListTable<Row: Identifiable>: View {
                         .font(AppFont.footnoteRegular)
                         .foregroundStyle(AppColor.textSecondary)
                         .multilineTextAlignment(column.textAlignment)
+                        .fixedSize(horizontal: true, vertical: false)
                         .frame(maxWidth: .infinity, alignment: column.frameAlignment)
                         .padding(.horizontal, 8)
                         .padding(.vertical)
@@ -70,6 +71,7 @@ struct ListTable<Row: Identifiable>: View {
                             .font(AppFont.bodyRegular)
                             .foregroundStyle(AppColor.textPrimary)
                             .multilineTextAlignment(column.textAlignment)
+                            .fixedSize(horizontal: true, vertical: false)
                             .frame(maxWidth: .infinity, alignment: column.frameAlignment)
                             .padding(.horizontal, 8)
                             .padding(.vertical)
