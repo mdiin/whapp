@@ -32,6 +32,13 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
     `ListLargeTitleHeader` (large title, optional subtitle).
   - Rules: keep each process's lists separate; columns stay aligned; IDs and units are exact; lists fill
     their container; no clipped critical data.
+- Buttons use the shared components in the same folder (Figma "Button" page), not a bare `Button` with
+  hand-made styling:
+  - `AppButton(title, systemImage:, kind:, fillsWidth:)`: capsule button. `kind` is `.primary` (dark),
+    `.accent` (dark, accent label) or `.glass` (light, translucent, e.g. Login). `fillsWidth: true` is the
+    full-width "Enter" button. Disabled is `.disabled(...)`; the grey look is automatic.
+  - `AppIconButton(systemImage:, label:)`: round icon-only button (`label` is the accessibility label).
+  - `AppButtonStyle` is the style behind them, for a `Button` that needs custom content.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
