@@ -12,6 +12,10 @@ enum AppColor {
     static let brandPrimaryLight = Color(red: 0.0745, green: 0.6078, blue: 0.8745)
     /// Brand/Secondary
     static let brandSecondary = Color(red: 1, green: 0.4, blue: 0)
+    /// Disabled Dark
+    static let disabledDark = Color(red: 0.3294, green: 0.3294, blue: 0.3373, opacity: 0.3412)
+    /// Disabled Light
+    static let disabledLight = Color(red: 0.9098, green: 0.9098, blue: 0.9098)
     /// Illustration/Light Blue
     static let illustrationLightBlue = Color(red: 0.8353, green: 0.898, blue: 0.9294)
     /// Material Type/Batched
@@ -20,18 +24,32 @@ enum AppColor {
     static let materialTypeSerialized = Color(red: 0.6745, green: 0.498, blue: 0.3686)
     /// Material Type/Shelf Life
     static let materialTypeShelfLife = Color(red: 0.3804, green: 0.3333, blue: 0.9608, opacity: 0.502)
+    /// Primary Dark
+    static let primaryDark = Color(red: 0.0863, green: 0.2275, blue: 0.3725)
     /// State/Disabled
     static let stateDisabled = Color(red: 0.9098, green: 0.9098, blue: 0.9098)
     /// State/Selected
     static let stateSelected = Color(red: 0.0863, green: 0.2275, blue: 0.3725, opacity: 0.102)
     /// Stroke/Section
     static let strokeSection = Color(red: 0, green: 0, blue: 0, opacity: 0.102)
+    /// Tertiary
+    static let tertiary = Color(red: 1, green: 1, blue: 1)
+    /// Text/Disabled
+    static let textDisabled = Color(red: 0.5647, green: 0.5608, blue: 0.5686)
     /// Text/Inverted
     static let textInverted = Color(red: 1, green: 1, blue: 1)
+    /// Text/Negative
+    static let textNegative = Color(red: 0.6667, green: 0.0314, blue: 0.0314)
+    /// Text/Positive
+    static let textPositive = Color(red: 0.1451, green: 0.4353, blue: 0.2275)
     /// Text/Primary
     static let textPrimary = Color(red: 0.1725, green: 0.2275, blue: 0.2588)
     /// Text/Secondary
     static let textSecondary = Color(red: 0.2353, green: 0.2353, blue: 0.2627, opacity: 0.6)
+    /// Text/Tertiary
+    static let textTertiary = Color(red: 1, green: 1, blue: 1)
+    /// Warning/Warning
+    static let warningWarning = Color(red: 0.9294, green: 0.3725, blue: 0)
 }
 
 /// The design system's text styles (Figma text styles "SF Pro/…").

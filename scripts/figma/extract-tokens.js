@@ -8,8 +8,10 @@
 // Designers own the tokens. Whatever is inconsistent in Figma is reported under `issues`, never fixed here.
 
 // Where the tokens live in the Figma file.
+const COLORS_PAGE = '10001:193' // page "Colors"
+const COLORS_SECTION = '4853:17840' // its swatch section: every variable bound there is a colour token
 const TYPOGRAPHY_PAGE = '10114:81519' // page "Typografi": its text nodes use the text styles
-const COLOR_COLLECTIONS = ['Colors'] // the local variable collections that are colour tokens
+const COLOR_COLLECTIONS = ['Colors'] // local collections taken in full, on top of the swatches' variables
 
 const round = (n) => Math.round(n * 100) / 100
 const byte = (n) => Math.round(n * 255)
@@ -23,27 +25,54 @@ const issues = []
 
 // ---- Colours ----------------------------------------------------------------------------------------------
 
-const collections = await figma.variables.getLocalVariableCollectionsAsync()
+const variableIds = new Set()
+for (const c of await figma.variables.getLocalVariableCollectionsAsync()) {
+  if (COLOR_COLLECTIONS.includes(c.name)) c.variableIds.forEach((id) => variableIds.add(id))
+}
+
+const colorsPage = await figma.getNodeByIdAsync(COLORS_PAGE)
+await colorsPage.loadAsync()
+const section = await figma.getNodeByIdAsync(COLORS_SECTION)
+for (const r of section.findAllWithCriteria({ types: ['RECTANGLE'] })) {
+  const fill = Array.isArray(r.fills) ? r.fills.find((f) => f.visible !== false && f.type === 'SOLID') : null
+  if (!fill) continue
+  const bound = r.boundVariables && r.boundVariables.fills && r.boundVariables.fills[0]
+  if (bound) {
+    variableIds.add(bound.id)
+  } else {
+    // The label is the first text in the swatch's frame.
+    let p = r.parent, label = null
+    while (p && p.id !== section.id && !label) {
+      label = p.findAllWithCriteria({ types: ['TEXT'] })[0] || null
+      p = p.parent
+    }
+    const name = label ? label.characters.replace(/\s*\n\s*/g, ' ').trim() : r.id
+    issues.push(`Colors: swatch "${name}" (${r.id}) is ${hex(fill.color, fill.opacity)} but not bound to a variable, so it is not a token.`)
+  }
+}
+
 const colors = {}
 const modeNames = new Set()
-
-for (const c of collections.filter((c) => COLOR_COLLECTIONS.includes(c.name))) {
-  for (const id of c.variableIds) {
-    const v = await figma.variables.getVariableByIdAsync(id)
-    if (v.resolvedType !== 'COLOR') continue
-    const values = {}
-    for (const m of c.modes) {
-      modeNames.add(m.name)
-      const val = v.valuesByMode[m.modeId]
-      if (val && val.type === 'VARIABLE_ALIAS') {
-        const target = await figma.variables.getVariableByIdAsync(val.id)
-        values[m.name] = { alias: target.name }
-      } else {
-        values[m.name] = hex(val, val.a)
-      }
+for (const id of variableIds) {
+  const v = await figma.variables.getVariableByIdAsync(id)
+  if (!v || v.resolvedType !== 'COLOR') continue
+  const collection = await figma.variables.getVariableCollectionByIdAsync(v.variableCollectionId)
+  const values = {}
+  for (const m of collection.modes) {
+    modeNames.add(m.name)
+    const val = v.valuesByMode[m.modeId]
+    if (val && val.type === 'VARIABLE_ALIAS') {
+      const target = await figma.variables.getVariableByIdAsync(val.id)
+      values[m.name] = { alias: target.name }
+    } else {
+      values[m.name] = hex(val, val.a)
     }
-    colors[v.name] = { values: sorted(values) }
   }
+  if (colors[v.name]) {
+    issues.push(`Colors: more than one variable is named "${v.name}" (collections "${colors[v.name].collection}" and "${collection.name}"); only the first is kept.`)
+    continue
+  }
+  colors[v.name] = { collection: collection.name, values: sorted(values) }
 }
 
 // ---- Typography -------------------------------------------------------------------------------------------
