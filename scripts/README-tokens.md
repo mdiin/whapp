@@ -4,7 +4,9 @@
 Figma file ──(1) extract──▶ design/tokens.json ──(2) generate──▶ AppCore/.../Common/UI/DesignTokens.generated.swift
 ```
 
-Both outputs are committed. Never edit them by hand.
+Both outputs are committed. Never edit them by hand. **Designers own the tokens in Figma**: there are no
+hand-maintained values here, so there is one source of truth. If a token is missing or wrong, it is fixed in
+Figma and the pipeline is run again.
 
 ## 1. Extract (needs Figma, run when the design changes)
 
@@ -12,9 +14,19 @@ Both outputs are committed. Never edit them by hand.
 with the Figma MCP's `use_figma` tool on the TSS Warehouse App file (key `GIB7NCSxaFs5r587ZMeExM`), and to save
 the returned JSON, pretty-printed (2 spaces, trailing newline), as `design/tokens.json`.
 
-Which variable collections count as tokens is the `COLOR_COLLECTIONS` list at the top of the snippet. Text
-styles are all taken. The output is sorted and has no timestamps, so an unchanged design gives an unchanged
-file, and a `git diff` of `design/tokens.json` is the review of a design change.
+Where the tokens come from (node ids are constants at the top of the snippet):
+
+- **Colours**: every variable in the local `Colors` collection.
+- **Typography**: the text styles used by the text nodes on the "Typografi" page.
+- **Spacing, corner radius, effects**: not extracted. Figma has no tokens for them yet (the Spacing page is
+  a screenshot of general guidance). When the designers add variables, extend the snippet.
+
+The output is sorted and has no timestamps, so an unchanged design gives an unchanged file, and a `git diff`
+of `design/tokens.json` is the review of a design change.
+
+Inconsistencies in Figma are never fixed here. They are listed under `issues` in `tokens.json` (for example a
+text style whose font does not match its name), and the
+generator prints them as warnings. Send them to the designers.
 
 ## 2. Generate (offline, deterministic)
 
@@ -24,8 +36,9 @@ node scripts/generate-tokens.mjs --check   # exit 1 if it is stale (use in CI)
 ```
 
 - Colours become `AppColor.<name>`. With a `Dark` mode in the tokens they become light/dark adaptive.
-- Text styles become `AppFont.<name>`, mapped to the system text styles (Dynamic Type). The generator fails
-  if Figma's size differs from iOS's for that style, so deviations are a conscious decision.
+- Text styles become `AppFont.<name>` (`AppFont.bodyEmphasized`, `AppFont.largeTitleRegular`), mapped to the
+  system text styles so they follow Dynamic Type, with `.italic()` where Figma's font is italic. The generator
+  fails if Figma's size differs from iOS's for that style, so deviations are a conscious decision.
 - Names that collide after conversion to Swift identifiers fail the run.
-
-Not covered yet: spacing and corner radius (no token collections for them in the file), effects (none defined).
+- Names are generated from Figma's as they are, typos included (`AppFont.subheadlineEmphaizedItalic`). Fix
+  them in Figma, not here.

@@ -36,30 +36,72 @@ enum AppColor {
 
 /// The design system's text styles (Figma text styles "SF Pro/…").
 enum AppFont {
-    /// SF Pro/Body/Emphasized
+    /// Body/Emphasized
     static let bodyEmphasized = Font.system(.body, design: .default, weight: .semibold)
-    /// SF Pro/Body/Regular
+    /// Body/Emphasized Italic
+    static let bodyEmphasizedItalic = Font.system(.body, design: .default, weight: .semibold).italic()
+    /// Body/Italic
+    static let bodyItalic = Font.system(.body, design: .default, weight: .regular).italic()
+    /// Body/Regular
     static let bodyRegular = Font.system(.body, design: .default, weight: .regular)
-    /// SF Pro/Callout/Emphasized
-    static let calloutEmphasized = Font.system(.callout, design: .default, weight: .semibold)
-    /// SF Pro/Callout/Regular
+    /// Callout/Emphasized
+    static let calloutEmphasized = Font.system(.callout, design: .default, weight: .semibold).italic()
+    /// Callout/Emphasized Italic
+    static let calloutEmphasizedItalic = Font.system(.callout, design: .default, weight: .semibold).italic()
+    /// Callout/Italic
+    static let calloutItalic = Font.system(.callout, design: .default, weight: .regular).italic()
+    /// Callout/Regular
     static let calloutRegular = Font.system(.callout, design: .default, weight: .regular)
-    /// SF Pro/Caption1/Emphasized
+    /// Caption1/Emphasized
     static let caption1Emphasized = Font.system(.caption, design: .default, weight: .semibold)
-    /// SF Pro/Caption1/Regular
+    /// Caption1/Emphasized Italic
+    static let caption1EmphasizedItalic = Font.system(.caption, design: .default, weight: .semibold).italic()
+    /// Caption1/Italic
+    static let caption1Italic = Font.system(.caption, design: .default, weight: .regular).italic()
+    /// Caption1/Regular
     static let caption1Regular = Font.system(.caption, design: .default, weight: .regular)
-    /// SF Pro/Footnote/Emphasized
+    /// Caption2/Emphasized
+    static let caption2Emphasized = Font.system(.caption2, design: .default, weight: .semibold)
+    /// Caption2/Emphasized Italic
+    static let caption2EmphasizedItalic = Font.system(.caption2, design: .default, weight: .semibold).italic()
+    /// Caption2/Italic
+    static let caption2Italic = Font.system(.caption2, design: .default, weight: .regular).italic()
+    /// Caption2/Regular
+    static let caption2Regular = Font.system(.caption2, design: .default, weight: .regular)
+    /// Footnote/Emphasized
     static let footnoteEmphasized = Font.system(.footnote, design: .default, weight: .semibold)
-    /// SF Pro/Footnote/Regular
+    /// Footnote/Emphasized Italic
+    static let footnoteEmphasizedItalic = Font.system(.footnote, design: .default, weight: .semibold).italic()
+    /// Footnote/Italic
+    static let footnoteItalic = Font.system(.footnote, design: .default, weight: .regular).italic()
+    /// Footnote/Regular
     static let footnoteRegular = Font.system(.footnote, design: .default, weight: .regular)
-    /// SF Pro/Headline/Emphasized
-    static let headlineEmphasized = Font.system(.headline, design: .default, weight: .semibold)
-    /// SF Pro/LargeTitle/Emphasized
+    /// Headline/Italic
+    static let headlineItalic = Font.system(.headline, design: .default, weight: .semibold).italic()
+    /// Headline/Regular
+    static let headlineRegular = Font.system(.headline, design: .default, weight: .semibold)
+    /// Large Title/Emphasized
     static let largeTitleEmphasized = Font.system(.largeTitle, design: .default, weight: .bold)
-    /// SF Pro/Title1/Emphasized
+    /// Large Title/Regular
+    static let largeTitleRegular = Font.system(.largeTitle, design: .default, weight: .regular)
+    /// Subheadline/Emphaized Italic
+    static let subheadlineEmphaizedItalic = Font.system(.subheadline, design: .default, weight: .semibold).italic()
+    /// Subheadline/Emphasized
+    static let subheadlineEmphasized = Font.system(.subheadline, design: .default, weight: .semibold)
+    /// Subheadline/Italic
+    static let subheadlineItalic = Font.system(.subheadline, design: .default, weight: .regular).italic()
+    /// Subheadline/Regular
+    static let subheadlineRegular = Font.system(.subheadline, design: .default, weight: .regular)
+    /// Title1/Emphasized
     static let title1Emphasized = Font.system(.title, design: .default, weight: .bold)
-    /// SF Pro/Title2/Emphasized
+    /// Title1/Regular
+    static let title1Regular = Font.system(.title, design: .default, weight: .regular)
+    /// Title2/Emphasized
     static let title2Emphasized = Font.system(.title2, design: .default, weight: .bold)
-    /// SF Pro/Title2/Regular
+    /// Title2/Regular
     static let title2Regular = Font.system(.title2, design: .default, weight: .regular)
+    /// Title3/Emphasized
+    static let title3Emphasized = Font.system(.title3, design: .default, weight: .semibold)
+    /// Title3/Regular
+    static let title3Regular = Font.system(.title3, design: .default, weight: .regular)
 }

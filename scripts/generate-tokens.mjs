@@ -82,13 +82,14 @@ const weight = (w) =>
   w == null ? '.regular'
     : w < 350 ? '.light' : w < 450 ? '.regular' : w < 550 ? '.medium' : w < 650 ? '.semibold' : w < 750 ? '.bold' : '.heavy'
 
+// Names are "<Group>/<Variant>", e.g. "Large Title/Emphasized" (older files had a "SF Pro/" prefix).
 const fontNames = Object.keys(tokens.typography)
-const fontId = (path) => identifier(path.replace(/^SF Pro\//, ''))
-unique('typography', fontNames.map((n) => n.replace(/^SF Pro\//, '')))
+const groupOf = (name) => name.split('/').slice(-2, -1)[0].replace(/\s+/g, '')
+unique('typography', fontNames)
 
 const fontLines = fontNames.map((name) => {
   const t = tokens.typography[name]
-  const group = name.split('/')[1]
+  const group = groupOf(name)
   const known = textStyles[group]
   let value
   if (known) {
@@ -99,7 +100,8 @@ const fontLines = fontNames.map((name) => {
   } else {
     value = `Font.system(size: ${t.size}, weight: ${weight(t.weight)})`
   }
-  return `    /// ${name}\n    static let ${fontId(name)} = ${value}`
+  if (t.italic) value += '.italic()'
+  return `    /// ${name}\n    static let ${identifier(name)} = ${value}`
 })
 
 // ---- Output ----------------------------------------------------------------------------------------------
@@ -128,6 +130,8 @@ enum AppFont {
 ${fontLines.join('\n')}
 }
 `
+
+for (const issue of tokens.issues ?? []) console.warn(`design issue: ${issue}`)
 
 if (process.argv.includes('--check')) {
   if (!existsSync(output) || readFileSync(output, 'utf8') !== out) {
