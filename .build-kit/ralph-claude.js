@@ -2,9 +2,11 @@
 // Ralph loop + realtime agent using Claude Code as the executor.
 // Usage: node ralph-claude.js [project_dir]
 
-import { startRalph, loadLocalConfig, resolveAgentIdentity, connectHeader } from './lib/ralph.js';
+import { readPickupStatus, startRalph, eventMeta, loadLocalConfig, resolveAgentIdentity, connectHeader } from './lib/ralph.js';
+import { kitTypeOf } from './lib/build-log-share.js';
 import { createSliceTracer, usageFromClaudeResult } from './lib/tracing.js';
 import { turnTimeoutMs, superviseTurn } from './lib/turn.js';
+import { recordToolCall } from './lib/tool-call-events.js';
 import { spawn } from 'child_process';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -28,6 +30,7 @@ const tracer = createSliceTracer({
   organizationId: cfg.organizationId,
   boardId: cfg.boardId,
   agentId: cfg.agentId,
+  kitType: kitTypeOf(readPickupStatus(kitDir)),
   traceFile: join(projectDir, '.eventmodelers', 'trace', 'slices.jsonl'),
   log: (line) => console.log(`[ralph] ${line}`),
   enabled: tracingOn,
@@ -78,16 +81,21 @@ function describeToolUse(block) {
 }
 
 // `slice` is set for a planned-slice build (see startRalph) — the only turns that are traced.
-function runClaude(prompt, slice = null) {
+function runClaude(prompt, slice = null, extraEnv = {}) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('claude', [...claudeArgs, '-p', inlineHeader + prompt], {
+    // The prompt goes in on stdin, never as a `-p` argument: on Windows a multi-line argv entry
+    // is cut at its first newline, so `claude` saw only the connect header, answered "I don't see
+    // a request" and the slice stayed Planned until the stuck-slice guard blocked it.
+    const proc = spawn('claude', [...claudeArgs, '-p'], {
       cwd: projectDir,
-      stdio: ['inherit', 'pipe', 'inherit'],
-      env: claudeEnv,
+      stdio: ['pipe', 'pipe', 'inherit'],
+      env: { ...claudeEnv, ...extraEnv },
     });
+    proc.stdin.end(inlineHeader + prompt);
     const turn = superviseTurn(proc, { timeoutMs, label: 'Claude turn', log: (line) => console.error(`[ralph] ${line}`) });
 
     let buffer = '';
+    let reply = null;
     proc.stdout.on('data', (chunk) => {
       buffer += chunk.toString();
       const lines = buffer.split('\n');
@@ -101,12 +109,14 @@ function runClaude(prompt, slice = null) {
           for (const block of msg.message?.content ?? []) {
             if (block.type === 'text' && block.text && verbose) console.log(block.text);
             if (block.type === 'tool_use') {
+              recordToolCall({ kitDir, slice, tool: block.name, meta: eventMeta(cfg) });
               if (verbose) console.log(`→ ${describeToolUse(block)}`);
               else if (block.name === 'Skill') console.log(`→ Skill: ${block.input?.skill ?? ''}`);
               else console.log(`→ ${block.name}`);
             }
           }
         } else if (msg.type === 'result') {
+          reply = msg.result ?? null;
           console.log(`done (${msg.duration_ms}ms${msg.total_cost_usd ? `, $${msg.total_cost_usd.toFixed(4)}` : ''})`);
           if (slice) tracer.record({...slice, status: msg.is_error ? 'error' : 'ok'}, usageFromClaudeResult(msg));
         }
@@ -116,7 +126,7 @@ function runClaude(prompt, slice = null) {
     proc.on('close', (code) => {
       const timeout = turn.timeoutError();
       if (timeout) reject(timeout);
-      else if (code === 0) resolve();
+      else if (code === 0) resolve(reply);
       else reject(new Error(`Claude exited ${code}`));
     });
     proc.on('error', reject);
@@ -128,6 +138,8 @@ startRalph({
   projectDir,
   onTask: runClaude,
   onPlannedSlice: runClaude,
+  // The curation turn: the learnings tidied by an agent that may only merge and retract (see lib/slice-curation.js).
+  onCurate: (prompt, { env } = {}) => runClaude(prompt, null, env),
   localOnly,
 }).catch((err) => {
   console.error('[ralph] Fatal:', err);

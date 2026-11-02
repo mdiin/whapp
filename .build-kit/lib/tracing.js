@@ -51,12 +51,24 @@ export function usageFromLocalAi(raw, durationMs) {
  *   - OpenCode `opencode run --format json`: `step_finish` per model step, with tokens and cost
  *   - Gemini CLI `--output-format stream-json`: the final `result` with `stats`;
  *     `--output-format json`: one object whose `stats.models` holds tokens per model
- *  Only OpenCode reports a cost — the others leave costUsd null rather than guessing a price. */
+ *   - Pi `pi --mode json`: `turn_end` carries the assistant message with its `usage` (cost included)
+ *  Only OpenCode and Pi report a cost — the others leave costUsd null rather than guessing a price. */
 export function usageFromHarnessEvent(msg) {
   if (msg?.type === 'turn.completed' && msg.usage) {
     const u = msg.usage;
     const cached = n(u.cached_input_tokens);
     return { inputTokens: Math.max(0, n(u.input_tokens) - cached), outputTokens: n(u.output_tokens), cacheReadTokens: cached };
+  }
+  if (msg?.type === 'turn_end' && msg.message?.role === 'assistant' && msg.message.usage) {
+    const u = msg.message.usage;
+    return {
+      inputTokens: n(u.input),
+      outputTokens: n(u.output),
+      cacheReadTokens: n(u.cacheRead),
+      cacheWriteTokens: n(u.cacheWrite),
+      costUsd: Number.isFinite(u.cost?.total) ? u.cost.total : null,
+      model: typeof msg.message.model === 'string' ? msg.message.model : null,
+    };
   }
   if (msg?.type === 'step_finish' && msg.part?.tokens) {
     const t = msg.part.tokens;
@@ -108,9 +120,9 @@ export function sumUsage(parts) {
   };
 }
 
-/** Records slice build turns. The agent id is the session: the platform requires one, and a
+/** Records slice build turns. `kitType` (`backend` | `ui`) says which build kit ran them. The agent id is the session: the platform requires one, and a
  *  restart of the same build agent is still the same agent building the same slices. */
-export function createSliceTracer({ baseUrl, token, organizationId, boardId: defaultBoardId, agentId, traceFile, log = () => {}, enabled = true } = {}) {
+export function createSliceTracer({ baseUrl, token, organizationId, boardId: defaultBoardId, agentId, traceFile, kitType = null, log = () => {}, enabled = true } = {}) {
   const canUpload = !!(enabled && baseUrl && token && organizationId && agentId);
 
   async function post(trace) {
@@ -140,13 +152,13 @@ export function createSliceTracer({ baseUrl, token, organizationId, boardId: def
   }
 
   return {
-    /** One build turn: `{sliceId, sliceTitle, context, ticketNumber, boardId, attempt, status}` plus its usage.
-     *  ticketNumber is the slice's ticket at build time — it can change, so it travels with each turn. */
-    record({ sliceId, sliceTitle = null, context = null, ticketNumber = null, boardId = defaultBoardId ?? null, attempt = null, status = 'ok' }, usage) {
+    /** One build turn: `{sliceId, sliceTitle, context, ticketNumber, feature, boardId, attempt, status}` plus its usage.
+     *  ticketNumber and feature are the slice's at build time — they can change, so they travel with each turn. */
+    record({ sliceId, sliceTitle = null, context = null, ticketNumber = null, feature = null, boardId = defaultBoardId ?? null, attempt = null, status = 'ok' }, usage) {
       if (!sliceId || !usage) return;
       const trace = {
         id: newId(), occurredAt: new Date().toISOString(),
-        boardId, sliceId, sliceTitle, context, ticketNumber, agentId, sessionId: agentId, attempt, status, ...usage,
+        boardId, sliceId, sliceTitle, context, ticketNumber, feature, kitType, agentId, sessionId: agentId, attempt, status, ...usage,
       };
       write(trace);
       post(trace).catch(() => {});

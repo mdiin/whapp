@@ -27,8 +27,6 @@ node .build-kit/ralph-claude.js /path/to/project
 | `ralph-claude.js` | Runs the full loop using Claude Code as the executor |
 | `ralph-local-ai.js` | Runs the full loop using a local/self-hosted model (Ollama, vLLM, LM Studio, llama.cpp) |
 | `ralph-exec.js` | Runs the full loop handing each prompt to an external agent command (Codex CLI, OpenCode, …) |
-| `ralph.sh` | Shell-based loop — alternative to the JS entry points |
-| `realtime-agent.js` | Standalone realtime agent — only needed to run it in a separate terminal |
 
 **Internals** (`lib/`):
 
@@ -36,16 +34,15 @@ node .build-kit/ralph-claude.js /path/to/project
 |------|---------|
 | `lib/ralph.js` | Shared library — realtime agent + loop logic; imported by the entry points |
 | `lib/local-ai-agent.js` | Local-AI executor — called by `ralph-local-ai.js`, can also run manually |
-| `lib/agent.sh` | Thin shell wrapper around `claude` — called by `ralph.sh` |
 | `lib/prompt.md` | Phase 1 prompt: tells Claude how to load a slice from the board |
 | `lib/backend-prompt.md` | Phase 2 prompt: tells Claude how to build a planned slice |
 | `lib/AGENT.md` | Agent instructions included in Claude's context |
 
 ## How it works
 
-**Phase 1** — triggered when `tasks.json` has entries:
-- The realtime agent writes a task to `tasks.json` each time a `slice:changed` event arrives from the board
-- The loop picks it up and runs Claude (or a local model) with `prompt.md`
+**Phase 1** — triggered when the task queue has entries (the queue is the event log in `.build-kit/events/`):
+- The realtime agent queues a task (`task-queued`) each time a `slice:changed` event arrives from the board; a newer change to the same slice replaces its queued task
+- The loop hands the oldest one to Claude (or a local model) with `prompt.md` and completes it (`task-done`) when the turn ends
 - Claude loads the slice data and updates `.slices/`
 
 **Phase 2** — triggered when any file in `.slices/` contains `"status": "Planned"`:
@@ -54,18 +51,6 @@ node .build-kit/ralph-claude.js /path/to/project
 - Phase 2 (building slices) never runs with `--local-ai` — see *`--local-ai` does not build code*. Build with `--exec` instead
 
 Both phases run in a continuous loop with a 3-second idle sleep. The realtime agent runs concurrently in the same process.
-
-## Running the realtime agent separately
-
-If you want the board subscription in one terminal and the Claude loop in another:
-
-```bash
-# Terminal 1 — realtime agent only
-node .build-kit/realtime-agent.js
-
-# Terminal 2 — loop only (poll tasks.json without the realtime subscription)
-.build-kit/ralph.sh
-```
 
 ## Local-AI configuration
 
@@ -78,7 +63,7 @@ Claude (`ralph-claude.js`) stays the default runner — this is opt-in.
 Planned. That is by design, not a bug:
 
 - **Planned slices are never handed to it.** `ralph-local-ai.js` gives `startRalph` no
-  `onPlannedSlice`, so the loop only feeds it `tasks.json` prompts.
+  `onPlannedSlice`, so the loop only feeds it queued tasks.
 - **It has no coding tools.** `lib/local-ai-agent.js` exposes only the board MCP tools:
   no file read/write, no shell, no git, no test run.
 - **Its system prompt forbids file and shell access.** Such a request is answered with
