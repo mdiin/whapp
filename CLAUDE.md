@@ -48,6 +48,11 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   expected quantity, received-quantity and batch/serial fields with a scan button (shelf-life materials
   also an expiry date), and a Receive button that is enabled when every field the `MaterialTracking`
   (`.batched`, `.serialized`, `.shelfLife`) asks for is filled. It stacks on a narrow screen.
+- Notifications use `AppNotification` / `.appNotification($content)` (Figma "Notification"): brief,
+  non-blocking feedback only ("All materials received"), never for a decision or anything destructive
+  (use an alert). Set `AppNotificationContent(title:message:systemImage:)` on a binding and the modifier
+  shows it centred at the top, 8 pt below the status bar and above everything, then dismisses it. Titles
+  under about four words, one-sentence messages. `stackedBehind:` only illustrates a notification history.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
