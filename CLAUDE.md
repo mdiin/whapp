@@ -44,6 +44,10 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   Rules: determinate and linear only; the count is in the label and the percentage at the right end;
   place it below the list title and above the list it summarises; keep it visible while the list is
   processed (it is the user's checklist, not a loading state); update it per receipt; fill the container.
+- Receiving a material uses `ReceiveMaterialForm` (Figma "Receive Material"): tracking tag, material and
+  expected quantity, received-quantity and batch/serial fields with a scan button (shelf-life materials
+  also an expiry date), and a Receive button that is enabled when every field the `MaterialTracking`
+  (`.batched`, `.serialized`, `.shelfLife`) asks for is filled. It stacks on a narrow screen.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
