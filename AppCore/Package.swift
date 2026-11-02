@@ -1,4 +1,4 @@
-// swift-tools-version:6.1
+// swift-tools-version:6.2
 import PackageDescription
 
 // ledjer-swift from GitHub, or from a local checkout when `LEDJER_SWIFT_PATH` is set
@@ -13,7 +13,7 @@ let ledjer: Package.Dependency =
 let package = Package(
     name: "AppCore",
     platforms: [
-        .iOS(.v18),
+        .iOS(.v26),
         // Only so the package resolves on a Mac. The app, and its tests, run on iOS (see README).
         .macOS(.v15),
     ],

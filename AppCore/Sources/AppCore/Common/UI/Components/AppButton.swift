@@ -8,7 +8,7 @@ enum AppButtonKind {
     case primary
     /// Figma "Buttons / Text" = Variant 5 (label with icon): dark fill, accent-coloured label and icon.
     case accent
-    /// Figma "Button - Liquid Glass - Text", "Button / Login": a light, translucent capsule.
+    /// Figma "Button - Liquid Glass - Text", "Button / Login": a light capsule with the system's Liquid Glass effect while enabled.
     case glass
 }
 
@@ -100,16 +100,24 @@ private struct AppButtonBody: View {
     @Environment(\.isEnabled) private var isEnabled
 
     var body: some View {
-        configuration.label
+        let content = configuration.label
             .font(AppFont.bodyRegular)
             .foregroundStyle(labelColor)
             .padding(.horizontal)
             .padding(.vertical, 12)
             .frame(maxWidth: fillsWidth ? .infinity : nil)
-            .background(fill, in: Capsule())
-            .overlay(Capsule().strokeBorder(kind == .glass && isEnabled ? AppColor.strokeSection : .clear))
-            .opacity(configuration.isPressed ? 0.7 : 1)
-            .contentShape(Capsule())
+
+        Group {
+            if kind == .glass && isEnabled {
+                content
+                    .glassEffect(.regular.interactive(), in: Capsule())
+                    .overlay(Capsule().strokeBorder(AppColor.strokeSection))
+            } else {
+                content.background(fill, in: Capsule())
+            }
+        }
+        .opacity(configuration.isPressed ? 0.7 : 1)
+        .contentShape(Capsule())
     }
 
     private var labelColor: Color {
@@ -121,12 +129,10 @@ private struct AppButtonBody: View {
         }
     }
 
-    private var fill: AnyShapeStyle {
-        guard isEnabled else { return AnyShapeStyle(AppColor.stateDisabled) }
-        switch kind {
-        case .primary, .accent: return AnyShapeStyle(AppColor.primaryDark)
-        case .glass: return AnyShapeStyle(.regularMaterial)
-        }
+    /// The solid fill (glass buttons use the system's glass effect while enabled).
+    private var fill: Color {
+        guard isEnabled else { return AppColor.stateDisabled }
+        return AppColor.primaryDark
     }
 }
 

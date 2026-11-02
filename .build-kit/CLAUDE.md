@@ -1,6 +1,6 @@
 # Project Configuration
 
-This is an event-sourced iOS app (iPhone and iPad, iOS 18): SwiftUI, and
+This is an event-sourced iOS app (iPhone and iPad, iOS 26): SwiftUI, and
 [ledjer-swift](https://github.com/planmdk/ledjer-swift) for events, read models, persisted views and
 automations, with the events in an on-device SQLite database (GRDB). Read `README.md` for how the app is
 put together, and the events in `AppCore/Sources/AppCore/Events/` to understand the global structure.

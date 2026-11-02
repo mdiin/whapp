@@ -1,6 +1,6 @@
 # SwiftUI + ledjer-swift starter
 
-A minimal project for event-sourced iOS apps (iPhone and iPad, iOS 18): SwiftUI for screens, and
+A minimal project for event-sourced iOS apps (iPhone and iPad, iOS 26): SwiftUI for screens, and
 [ledjer-swift](https://github.com/planmdk/ledjer-swift) for events, read models, persisted views and
 automations, with the events in an on-device SQLite database ([GRDB](https://github.com/groue/GRDB.swift)).
 The app is offline-first: the events live on the device. It is ready for the `build-state-change`,

@@ -12,7 +12,7 @@ container) and *run* on macOS with Xcode and the iOS simulator available.
 | Topic | Decision |
 |---|---|
 | Rewritten | The scaffold, the skills (`build-state-change`, `build-state-view`, `build-automation`, and `load-slice` for the navigation data within the slice's timeline), and the prompt. The Node `.build-kit` runtime stays as it is. |
-| Devices | iPhone and iPad, iOS 18 minimum |
+| Devices | iPhone and iPad, iOS 26 minimum |
 | Data | Offline-first: the events are on the device (ledjer-swift + GRDB). Sync with a server is project-specific, not part of the kit. |
 | Users, authentication, authorization | Project-specific, not part of the kit |
 | App groups (widgets, extensions) | Project-specific, not part of the kit |
