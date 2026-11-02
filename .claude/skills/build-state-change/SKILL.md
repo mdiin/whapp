@@ -3,11 +3,11 @@ name: build-state-change
 authors:
   - Matthias Varberg Ingesman
 description: >
-  Implement DCB-style write slices using the ledjer Clojure library in this project's one
-  established pattern: A function of `event-store` and command `payload` either throwing
-  or appending events to `event-store`. Use when implementing a new write slice / command
-  handler from a slice.json event model in this project. There is exactly one supported
-  style - do not offer alternatives.
+  Implement DCB-style write slices with ledjer-swift in this project's one established pattern: a
+  `Codable` command and an `async` handler of the command and the event store that either throws or
+  appends events, registered in the command registry by name. Use when implementing a new write
+  slice / command handler from a slice.json event model in this project. There is exactly one
+  supported style - do not offer alternatives.
 ---
 
 # Build State Change Slice
@@ -20,17 +20,42 @@ description: >
 
 ## What a State Change Slice is
 
-One pattern only. Directory layout is flat - `src/{basepackage-path}/slices/{context}/{slicename}/slice.clj`, shared
-`src/{basepackage-path}/slices/events.clj` for the events.
+A state change slice is **command → events**. It has no UI: the form that sends the command is on the
+screen of a state-view slice, which sends it through the command registry by name (see
+`build-state-view`). One pattern only.
 
 A state change slice consists of:
 
-- A command function of `event-store` and `payload`
-- A projection of existing events for consistency checks
-- A change handler Pedestal interceptor
-- A set of routes in Pedestal route syntax in `routes` containing one entry for the change handler interceptor
+- The events it appends, if they don't exist yet (step 2)
+- A `Command` struct of the command's fields (step 3.1)
+- A handler: an `async` function of the command and the event store that decides, using a `ReadModel`
+  of the existing events, and appends with an append condition — or throws (step 3.2)
+- A `register(in:)` function that registers the command by name (step 3.3)
+- Tests: one `gwt` per specification (step 4)
 
-All this goes into the `slice.clj` file.
+### Names and files
+
+| What | Rule | Example |
+|---|---|---|
+| `{context}` | the context name, kebab-cased | `understanding-eventsourcing` |
+| `{Context}` | the context name, PascalCase | `UnderstandingEventsourcing` |
+| `{slice}` | the slice title, kebab-cased | `add-item` |
+| `{Slice}` | the slice title, PascalCase | `AddItem` |
+| command name | `{context}/{slice}` — the contract between slices | `understanding-eventsourcing/add-item` |
+
+```
+AppCore/Sources/AppCore/
+├── Events/{Context}/{EventName}.swift            ← one file per event (step 2)
+├── Events/AllEvents.swift                        ← every event type is listed here (step 2)
+├── Slices/{Context}/{Context}.swift              ← `enum {Context} {}`: create it if it doesn't exist
+├── Slices/{Context}/{Slice}/{Slice}.swift        ← the slice: everything in steps 3.1–3.3
+└── Slices/Slices.swift                           ← one line per slice: `{Context}.{Slice}.register(in: &registry)`
+AppCore/Tests/AppCoreTests/Slices/{Context}/{Slice}/{Slice}Tests.swift
+```
+
+All slices are in one module, so the slice's types are nested in `enum {Slice}` inside
+`extension {Context}`, and never collide with another slice's. **Never refer to another slice's types**:
+slices are decoupled, and another slice may not be built yet.
 
 ## Step 1 — Read the slice.json
 
@@ -45,461 +70,234 @@ From the slice definition, extract:
 
 ---
 
-## Step 2 - the events - only if it doesn't alread exist
+## Step 2 — the events — only if they don't already exist
 
-**Check `src/{basepackage-path}/slices/events.clj` first;** add event only if it does not exist there.
+**Check `AppCore/Sources/AppCore/Events/` first** (search for `static let eventType: EventType = "{context}/{event}"`);
+add an event only if it does not exist.
 
-```clojure
-(defevent {eventname}
-  :type :{context}/{eventname}
-  :schema [:map
-           ...]
-  :tags [...])
+```swift
+import Foundation
+import Ledjer
+
+struct CartCreated: Event {
+    static let eventType: EventType = "understanding-eventsourcing/cart-created"
+    static var tags: [EventTag<Self>] { [EventTag("cartId", \.cartId), EventTag("userId", \.userId)] }
+
+    var cartId: UUID
+    var userId: UUID
+    var description: String
+}
 ```
 
-**`:tags` is created from the event's fields with `idAttribute: true`**: `[(payload-path <idField1>) ... (payload-path <idFieldN>)]`
+- **The type name** is the event title in PascalCase (`Cart Created` → `CartCreated`). If another context
+  already has an event of that name, prefix the context (`ShopCartCreated`).
+- **`eventType`** is `"{context}/{event title kebab-cased}"`. It is stored with every event: never change it.
+- **Properties** are the event's fields, with their board names (camelCase) and the types in "Field types" below.
+- **`tags`** are the fields with `idAttribute: true`: `EventTag("{field}", \.{field})`. Only `String`,
+  `UUID`, `Int` and `Bool` properties can be tags (optional ones too); an id field of another type is
+  left out, recorded as an assumption.
+- **Add the type to `AllEvents.types`** in `Events/AllEvents.swift`. `SystemTests` checks that event types
+  are unique; ledjer-swift itself only notices a duplicate where both types meet.
 
-**`:schema` is a Malli schema created from the event's fields**: `[:map [:<field1.name> :<field1.type>] ... [:<fieldN.name> :<fieldN.type>]]`
+**Events are never migrated.** Once an event type exists, never change its fields incompatibly: a
+changed event is a new event type (e.g. `CartCreatedV2` with `eventType` `".../cart-created-v2"`), and the
+read models and handlers that use the old one handle both. Adding an *optional* field is the one
+compatible change.
 
-### Fields to Malli schema entries
+### Field types
 
-The same rules apply to every schema built from slice.json fields — events here, commands in step 3.1.
+The same rules apply to every struct built from slice.json fields — events, commands, read models, route
+parameters:
 
-- **Name**: kebab-cased keyword — `cartId` → `:cart-id`.
-- **Type** (case-insensitive):
-
-| slice.json `type` | Malli |
+| slice.json `type` (case-insensitive) | Swift |
 |---|---|
-| `String` | `:string` |
-| `UUID` | `:uuid` |
-| `Boolean` | `:boolean` |
-| `Int`, `Integer`, `Long` | `:int` |
-| `Double`, `Decimal` | `:double` |
-| `Date` | `:time/local-date` |
-| `DateTime` | `:time/instant` — always, read and shown in the project zone (see "The project's coercion namespace" in step 3.1) |
-| `Custom` | `[:map ...]` built from `subfields` with these same rules; `:map` if it has no subfields |
+| `String` | `String` |
+| `UUID` | `UUID` |
+| `Boolean` | `Bool` |
+| `Int`, `Integer`, `Long` | `Int` |
+| `Double` | `Double` |
+| `Decimal` | `Decimal` — exact, for money. Never `Double` |
+| `Date` | `CalendarDate` — a day without time or zone (`Common/CalendarDate.swift`). Never `Foundation.Date` |
+| `DateTime` | `Date` — a point in time, shown in the **device's** time zone |
+| `Custom` | a nested `struct {FieldName}: Codable, Sendable, Equatable` built from `subfields` with these same rules (singular for a list: `orderedProducts` → `OrderedProduct`) |
 
-  A type not in the table gets the closest match, recorded as an assumption.
-- **`cardinality: "List"`** wraps the type in a vector: `[:vector :uuid]`.
-- **`optional: true`** marks the entry optional: `[:image {:optional true} :string]`.
-
-**Command schemas only** — because forms send nothing for an unticked checkbox or an empty list, these two get
-a default (`coercion/transformer` fills it in, see step 3.1):
-
-- `Boolean` → `[:done {:default false} :boolean]`
-- `cardinality: "List"` → `[:item-ids {:default []} [:vector :uuid]]`
-
-Event schemas never get defaults: events are checked, never decoded, so a default there does nothing.
+- **`cardinality: "List"`** is an array: `[UUID]`. Never a `Set`, and no dictionaries with non-`String`
+  keys in events: `gwt` compares events as JSON, and those encode in no fixed order.
+- **`optional: true`** is an optional: `var image: String?`.
+- A type not in the table gets the closest match, recorded as an assumption.
+- Every struct conforms to `Codable, Sendable, Equatable`.
+- A `Custom` struct is nested in the **event** that has the field. A command, read model or item that
+  carries the same data uses the event's type (`[CartSubmitted.OrderedProduct]`): events are shared by all
+  slices, unlike slice types. A command's `Custom` field that no event has gets its own nested struct.
 
 **Example slice.json event (abbreviated):**
 
 ```json
 {
-      ...,
-      "modelContext": "Understanding Eventsourcing",
-      "title": "Cart Created",
-      "fields": [
-        {
-          "name": "cartId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": true
-        },
-        {
-          "name": "userId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": true
-        },
-        {
-          "name": "description",
-          "type": "string",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        }
-      ],
-    ...
+  "title": "Cart Created",
+  "fields": [
+    { "name": "cartId", "type": "UUID", "optional": false, "cardinality": "Single", "idAttribute": true },
+    { "name": "userId", "type": "UUID", "optional": false, "cardinality": "Single", "idAttribute": true },
+    { "name": "description", "type": "string", "optional": false, "cardinality": "Single", "idAttribute": false }
+  ]
+}
+```
+
+becomes the `CartCreated` above, in `Events/UnderstandingEventsourcing/CartCreated.swift`.
+
+## Step 3 — the slice
+
+```swift
+import Foundation
+import Ledjer
+
+extension UnderstandingEventsourcing {
+    enum AddItem {
+        static let name = "understanding-eventsourcing/add-item"
+
+        // The command (step 3.1)
+
+        // The read model of the consistency check and the handler (step 3.2)
+
+        // Registration (step 3.3)
     }
+}
 ```
 
-**Becomes this event in `events.clj`**:
+If `Slices/{Context}/{Context}.swift` doesn't exist, create it with `enum {Context} {}`.
 
-```clojure
-(defevent cart-created
-  :type :understanding-eventsourcing/cart-created
-  :schema [:map
-           [:cart-id :uuid]
-           [:user-id :uuid]
-           [:description :string]]
-  :tags [(payload-path :cart-id) (payload-path :user-id)])
+## Step 3.1 — the command
+
+```swift
+struct Command: Codable, Sendable, Equatable {
+    var cartId: UUID
+    var description: String
+    var image: String
+    var price: Decimal
+    var itemId: UUID
+    var productId: UUID
+}
 ```
 
-## Step 3 - the change slice
+Exactly the command's fields from slice.json, with "Field types" above. The screen sends a payload keyed by
+these field names, and the registry decodes it into `Command`: a missing field or a value of the wrong
+type comes back to the form as a field error (`CommandInputError`) without any code here. Never parse
+or convert values in the handler.
 
-```clojure
-(ns {basepackage}.slices.{context}.{slicename}.slice
-  (:require
-   [{basepackage}.common.interceptors :as interceptors]
-   [{basepackage}.slices.events :as ev]
-   [{basepackage}.common.utils :as utils]
-   [dk.planm.ledjer :as l]
-   [dk.planm.ledjer.event :as le]
-   [io.pedestal.http.response :refer [respond-with]]
-   [malli.core :as m]
-   [malli.error :as merror]
-   [{basepackage}.common.coercion :as coercion]
-   [tick.alpha.interval :as t.i]
-   [tick.core :as t]))
+## Step 3.2 — the handler
 
-;; Command function (step 3.1)
+```swift
+/// What the decision depends on: the read model of the events the rules need.
+static let cart = ReadModel(initial: Cart(), bindings: [
+    .on(CartCreated.self) { cart, _ in cart.exists = true },
+    .on(ItemAdded.self) { cart, _ in cart.itemCount += 1 },
+    .on(ItemRemoved.self) { cart, _ in cart.itemCount -= 1 },
+])
 
-;; Change handler Pedestal interceptor (step 3.2)
+struct Cart: Sendable {
+    var exists = false
+    var itemCount = 0
+}
 
-;; Routes (step 3.3)
+static func handle(_ command: Command, store: any EventStore) async throws {
+    let decision = try await cart.decide(on: store, where: [.payload("cartId"): .bound(command.cartId)])
+    guard decision.state.exists else { throw CommandRejected("This cart doesn't exist") }
+    guard decision.state.itemCount < 3 else { throw CommandRejected("A cart holds at most 3 items") }
+    try await store.append(
+        [ItemAdded(cartId: command.cartId, description: command.description, image: command.image,
+                   price: command.price, itemId: command.itemId, productId: command.productId)],
+        condition: decision.condition)
+}
 ```
 
-## Step 3.1 — the command function
+- **`ReadModel`** (`Common/ReadModel.swift`) is a ledjer `StateView` that knows its event types. Its state
+  holds only what the rules need. Every event type it reads gets exactly one binding.
+- **`decide(on:where:)`** returns the state and the append condition. **Always append with
+  `decision.condition`**: if an event the decision read was appended meanwhile, the append fails instead of
+  breaking a rule. With no rules to check, append without a read model or a condition.
+- **Tag bindings** are the command's id fields that the read model's events have as tags:
+  `[.payload("{field}"): .bound(command.{field})]`. Bind only tags at least one of the read model's event
+  types has (ledjer rejects others); an event type without the bound tag is read unfiltered.
+- **Business-rule violations throw `CommandRejected("…")`.** The message is shown to the user as it is, so
+  write it for them, in the UI's language. Any other error (a failed append condition, a bug) is reported
+  and the user sees a general message — never throw `CommandRejected` for those.
+- Rules come from slice.json's specifications, description and comments only. Ids of new entities are
+  fields of the command (the screen creates them), not created here.
+- Anything non-deterministic the handler needs (the current time, random values) is a parameter with a
+  default, so tests can fix it: `static func handle(_ command: Command, store: any EventStore, now: Date = Date())`.
 
-**`{schema}` is a Malli schema derived from the command's fields**: `[:map [:<field1.name> :<field1.type>] ... [:<fieldN.name> :<fieldN.type>]]`, following "Fields to Malli schema entries" in step 2.
+## Step 3.3 — registration
 
-```clojure
-(defn {commandname}-change
-  [event-store payload]
-  (let [coerced-payload (m/coerce
-                         {schema}
-                         payload
-                         coercion/transformer)]
-    ...))
-```
-
-**Always coerce with `coercion/transformer`** (see "The project's coercion namespace" below). Form and path
-values arrive as strings, and it turns them into the schema's types. Never parse values in the handler before
-calling the change function (e.g. with `t/date`): a value that doesn't parse would then throw outside coercion,
-as a server error instead of a field error.
-
-### The project's coercion namespace
-
-Coercion of request values is project code, not slice code. The project provides it in
-`src/{basepackage-path}/common/coercion.clj`, required as `[{basepackage}.common.coercion :as coercion]`:
-
-| Var | What it is |
-|---|---|
-| `coercion/zone` | The project's one fixed time zone, a `java.time.ZoneId` |
-| `coercion/transformer` | The malli transformer for every `m/coerce` of request values |
-| `coercion/instant->local-date-time` | An instant as a local date-time in `zone`, to the minute — for pages and `datetime-local` inputs |
-
-What `coercion/transformer` does with form values, which the schema rules in step 2 rely on:
-
-- **Strings** become the schema's type — numbers, UUIDs, booleans, `:time/local-date`, and `:time/instant`.
-- **`:time/instant`** also accepts a local date-time without a zone (what `<input type="datetime-local">`
-  sends) and reads it in `zone`.
-- **Empty values (`""`) are dropped**, as if the input wasn't sent: an empty optional field is left out, and an
-  empty required field fails as a missing key.
-- **A checkbox's `"on"`** becomes `true`.
-- **A single value for a `[:vector ...]`** becomes a one-element vector.
-- **Missing keys with a `:default`** get the default.
-
-**If the namespace doesn't exist, or lacks one of these vars, do not create or change it.** Invoke
-`/request-feedback` naming what is missing; this marks the slice `Blocked`. The same applies to the zone:
-never guess or change it while building a slice.
-
-**Example slice.json command (abbreviated)**:
-
-```json
-{
-      ...,
-      "modelContext": "Understanding Eventsourcing",
-      "title": "Add Item",
-      "fields": [
-        {
-          "name": "cartId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "description",
-          "type": "String",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "image",
-          "type": "String",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "price",
-          "type": "Double",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "itemId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "productId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        }
-      ],
-      "type": "COMMAND",
-      ...
+```swift
+static func register(in registry: inout Registry) {
+    registry.command(name, Command.self) { command, system in
+        try await handle(command, store: system.store)
     }
+}
 ```
 
-**Becomes this change function in the slice**:
+Then add `{Context}.{Slice}.register(in: &registry)` to `Slices.register(in:)` in
+`Slices/Slices.swift`. A name registered twice makes the app fail at launch, and `SystemTests` too.
 
-```clojure
-(defn add-item-change
-  [event-store payload]
-  (let [coerced-payload (m/coerce
-                         [:map
-                          [:cart-id :uuid]
-                          [:description :string]
-                          [:image :string]
-                          [:price :double]
-                          [:item-id :uuid]
-                          [:product-id :uuid]]
-                         payload
-                         coercion/transformer)]
-    ... ;; Validation logic
-    (if valid?
-      (l/append event-store [(ev/event-1 ...) (ev/event-2 ...)])
-      (throw (ex-info "... why it failed, for the user" {:type :command/rejected})))))
+## Step 4 — the tests
+
+ledjer-swift's `gwt` runs each scenario on a fresh in-memory event store. One `@Test` per specification,
+named after it, with Swift Testing:
+
+```swift
+import Foundation
+import Ledjer
+import Testing
+
+@testable import AppCore
+
+@Suite struct AddItemTests {
+    typealias Slice = UnderstandingEventsourcing.AddItem
+    let cartId = UUID(uuidString: "6B4D7F0E-2F0A-4C55-9C8E-1F6A2B3C4D5E")!
+    let itemId = UUID(uuidString: "0D1E2F30-4152-6374-8596-A7B8C9DAEBFC")!
+    let price = Decimal(string: "59.95")!  // not the literal 59.95, which goes through Double
+
+    var command: Slice.Command {
+        Slice.Command(cartId: cartId, description: "Shoes", image: "shoes.png", price: price,
+                      itemId: itemId, productId: UUID(uuidString: "11111111-2222-3333-4444-555555555555")!)
+    }
+
+    @Test func addsAnItemToAnExistingCart() async throws {
+        try await gwt(
+            given: [CartCreated(cartId: cartId, userId: UUID(uuidString: "99999999-8888-7777-6666-555555555555")!,
+                                description: "")],
+            when: { try await Slice.handle(command, store: $0) },
+            then: [ItemAdded(cartId: cartId, description: "Shoes", image: "shoes.png", price: price,
+                             itemId: itemId, productId: command.productId)])
+    }
+
+    @Test func rejectsAFourthItem() async throws {
+        try await gwt(
+            given: [/* CartCreated and three ItemAdded */],
+            when: { try await Slice.handle(command, store: $0) },
+            thenThrows: { ($0 as? CommandRejected)?.message == "A cart holds at most 3 items" })
+    }
+}
 ```
 
-Validation in the command can depend on projections of existing events.
-
-**Business-rule violations throw `(ex-info message {:type :command/rejected})`.** The `:type` is required:
-it is the only thing that tells the change handler (step 3.2) the error is meant for the user, and it shows
-the message as is — so write the message for the end user, in the UI's language. An `ex-info` without it is
-treated as a bug and becomes a server error. Invalid input needs no extra code — `m/coerce` already throws
-an `ex-info` with `:type :malli.core/coercion` for it.
-
-**Use a `(l/defview ...)` from Ledjer to project events**: see step 3.1 from the build-state-view skill for guidance.
-
-## Step 3.2 - the change handler interceptor
-
-A Pedestal interceptor map with `:name` and `:enter` keys.
-
-**Base pattern**:
-
-```clojure
-(defn- {commandname}-errors
-  [e]
-  (case (:type (ex-data e))
-    :malli.core/coercion (merror/humanize (-> e ex-data :data :explain) {:locale :da})
-    :command/rejected {:command/rejected [(ex-message e)]}
-    (throw e)))
-
-(def {commandname}-change-handler
-  {:name ::{commandname}-change-handler
-   :enter (fn [ctx]
-            (let [event-store (:event-store ctx)]
-              (try
-                ({commandname}-change event-store input)
-                (respond-with ctx status headers body)
-                (catch clojure.lang.ExceptionInfo e
-                  (assoc-in (respond-with ctx status headers body)
-                            [:response :flash :errors/{commandname}]
-                            ({commandname}-errors e))))))})
-```
-
-where `status`, `headers` and `body` must be derived from the slice comments in slice.json to know whether it is a redirect (303 with `location` header), ok (200 with body), created (201 without body), or something else.
-
-- **Only two kinds of error become form errors**: invalid input (`:malli.core/coercion`) and business-rule
-  violations (`:command/rejected`). Everything else — other exceptions, and `ex-info`s from ledjer itself
-  such as query validation, event schema or append-condition failures — is rethrown and surfaces as a
-  server error, so internal messages never reach the user.
-- **The errors are a map from field name to messages**, the shape `merror/humanize` returns for invalid
-  input. A business-rule violation isn't tied to a field, so its message goes under `:command/rejected`.
-  Field keys are never namespaced, so it can't collide with a field.
-- **The flash key is `:errors/{commandname}`** — the page showing the form reads its errors from there.
-- **`:locale`**: use the locale the project's other change handlers pass to `merror/humanize`; leave the
-  option out if there are none.
-- **Input** comes from `:form-params`, and from `:path-params` for the ids in the route's path (see
-  "Routes and paths"). Ids of the session user come from `[:request :session :user-id]`, never from the form.
-
-**Following the example above**:
-
-```clojure
-(defn- add-item-errors
-  [e]
-  (case (:type (ex-data e))
-    :malli.core/coercion (merror/humanize (-> e ex-data :data :explain) {:locale :da})
-    :command/rejected {:command/rejected [(ex-message e)]}
-    (throw e)))
-
-(def add-item-change-handler
-  {:name ::add-item-change-handler
-   :enter (fn [ctx]
-            (let [event-store (:event-store ctx)
-                  cart-id (get-in ctx [:request :path-params :cart-id])
-                  cart-page-url (utils/url-for-safe :understanding-eventsourcing/cart-items-page
-                                                    :path-params {:cart-id cart-id})]
-              (try
-                (add-item-change event-store {:cart-id cart-id
-                                              :description (get-in ctx [:request :form-params :description])
-                                              :image (get-in ctx [:request :form-params :image])
-                                              :price (get-in ctx [:request :form-params :price])
-                                              :item-id (get-in ctx [:request :form-params :item-id])
-                                              :product-id (get-in ctx [:request :form-params :product-id])})
-                (respond-with ctx 303 {"location" cart-page-url} {})
-                (catch clojure.lang.ExceptionInfo e
-                  (assoc-in (respond-with ctx 303 {"location" cart-page-url} {})
-                            [:response :flash :errors/add-item]
-                            (add-item-errors e))))))})
-```
-
-## Step 3.3 - the routes definition
-
-A set of routes with one entry, in the Pedestal route syntax:
-
-```clojure
-(def routes
-  #{["/carts/:cart-id/add-item" :post
-     [#'interceptors/authenticated-interceptor
-      ;; authorized-interceptor, see below
-      #'add-item-change-handler]
-     :route-name :understanding-eventsourcing/add-item]})
-```
-
-- `#'interceptors/authenticated-interceptor` is **always included**, first in the chain. A change route without
-  it lets anyone write events.
-- Add `interceptors/authorized-interceptor` when the command changes one entity owned by a user — i.e. the
-  entity's creation event has both the entity's id and `user-id` as tags. It responds 404 when the session
-  user doesn't own the entity. It takes the same arguments as in step 3.4 of `build-state-view`:
-
-```clojure
-(interceptors/authorized-interceptor
- :event-type (ev/{creation-event})
- :entity-id-key :{id-field}
- :entity-id-path [:request :path-params :{id-field}])
-```
-
-  A command that creates the entity has nothing to be authorized against yet: authenticated only.
-
-Look up interceptors in `src/{basepackage-path}/common/interceptors.clj` when necessary.
-
-**Wire the routes into the system**: in `src/{basepackage-path}/system.clj`, require the slice namespace as
-`slice.{context}.{slicename}` and add `slice.{context}.{slicename}/routes` to the `set/union` of routes.
-
-### Routes and paths
-
-The **route name is the contract between slices**: pages and redirects always refer to routes by name via
-`utils/url-for-safe`, never by path. Route names are mechanical:
-
-- change (state change): `:{context}/{slicename}`
-- page (state view): `:{context}/{slicename}-page`
-
-The **path** is resource-style. Decide it in this order:
-
-1. **Override** — if the command has a comment `path: /...`, use exactly that path. Never resolve a `path:`
-   comment: it stays on the board as the route's specification, so a later rebuild of the slice produces
-   the same path.
-2. **Resource** — one `/{entities}/:{id-field}` pair per id attribute of the entity the command acts on,
-   leaving out `user-id` (it comes from the session):
-   - `{entities}` is the plural of the id field's name without `-id`: `cart-id` → `/carts/:cart-id`.
-     For a generic id field (`id`, `aggregate-id`), name the entity from the command title instead
-     (`Publish Cart` → `carts`).
-   - With several ids, the parent comes first: the entity that exists before the other, i.e. whose id the
-     other entity's events carry. `cart-id` + `item-id` → `/carts/:cart-id/items/:item-id`. If that can't
-     be decided from the model, keep the order of the fields in slice.json.
-3. **Suffix** — the command name, kebab-cased: `/carts/:cart-id/add-item`, `/recipes/:recipe-id/archive-recipe`.
-   A command that creates the entity posts to `/{entities}` without a suffix.
-4. **Collision check** — search the existing `routes` in `src/{basepackage-path}/slices/**/slice.clj` for the same
-   path and verb. Depending on the router, a duplicate either stops Pedestal from starting or silently
-   shadows one of the routes — and slice tests don't load `system.clj`, so they won't catch it. On a
-   collision, add a suffix from the slice name.
-
-Unless the path came from a `path:` comment, record it as an assumption in `progress.txt`.
-
-The same rules are in the `build-state-view` skill; keep the two in sync.
-
-## Step 4 - the tests
-
-Ledjer ships with an in-memory event-store to be used for testing.
-
-Write Given-When-Then scenarios as plain clojure.test `testing` s-expressions under the same `deftest` expression.
-
-```
-(ns {basepackage}.slices.{context}.{slicename}.slice-test
-  (:require
-   [clojure.test :refer [deftest testing]]
-   [{basepackage}.slices.events :as ev]
-   [{basepackage}.slices.{context}.{slicename}.slice :as slice]
-   [dk.planm.ledjer :as l]))
-
-(deftest {slicename}-change
-  (testing "given no prior activity, when {commandname}, then succeeds"
-    (l/gwt
-     :given []
-     :when [#'slice/{commandname}-change input]
-     :then [ ;;... events created from constructor functions in `ev/`
-     ]))
-  (testing "given some events happened, when {commandname} with bad input, then failure"
-    (l/gwt
-     :given [ ;; ... events created from functions in `ev/`
-     ]
-     :when [#'slice/{commandname}-change bad-input]
-     :then #"error message from the expected thrown error")))
-```
-
-Create events using the event constructor functions in `src/{basepackage-path}/slices/events.clj`, avoid commands from other slices.
+- `then:` lists the expected events; an empty `then:` asserts that nothing was appended.
+- `thenThrows:` **always** has a predicate naming the expected error: by default any error passes, so a
+  bug would pass too.
+- Use fixed ids and values (taken from the specification's examples where it has them), never `UUID()` in
+  expected events.
+- Build `given` from the event structs; never call another slice's command.
 
 ## Quality gate
 
 Before considering the slice done:
 
-- [ ] Every field in slice.json's `commands[]` is in the change function's schema — no invented fields, none missing
-- [ ] Every field in slice.json's `events[]` is in the event's `defevent` schema — no invented fields, none missing
-- [ ] Every `specifications[]` scenario has a corresponding test
-- [ ] No business rule exists in the handler that isn't traceable to slice.json's `description`/`comments`
-- [ ] Every business-rule `ex-info` has `{:type :command/rejected}` and a message written for the end user
-- [ ] The command is coerced with `coercion/transformer`, and no value is parsed in the handler first
-- [ ] Every `Boolean` and `List` field of the command schema has its `:default` (`false` / `[]`); no event schema has one
-- [ ] The path follows "Routes and paths", the route has `authenticated-interceptor`, and the routes are in the `set/union` in `system.clj`
-- [ ] run the slice's own tests only (`clojure -X:test :nses '[{basepackage}.slices.{context}.{slicename}.slice-test]'` — namespace symbols, not strings; strings match nothing and run zero tests)
+- [ ] Every field in slice.json's `commands[]` is in `Command` — no invented fields, none missing
+- [ ] Every field in slice.json's `events[]` is in its event struct — no invented fields, none missing — and every event is in `AllEvents.types`
+- [ ] Field types follow "Field types": `Decimal` for money, `CalendarDate` for `Date`, arrays for lists
+- [ ] Every `specifications[]` scenario has a corresponding `@Test`, and every `thenThrows:` has a specific predicate
+- [ ] No business rule exists in the handler that isn't traceable to slice.json's `description`/`comments`/specifications
+- [ ] Business-rule errors are `CommandRejected` with a message for the end user; the append uses `decision.condition`
+- [ ] The slice doesn't refer to any other slice's types
+- [ ] `register(in:)` registers the command as `{context}/{slice}`, and `Slices.swift` calls it
+- [ ] The slice's own tests pass: `scripts/test.sh --only AppCoreTests/{Slice}Tests`
 - [ ] If checks pass, commit with `feat: {slicename}` and set slice status to `Done`

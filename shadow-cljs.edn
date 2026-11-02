@@ -1,3 +1,0 @@
-{:deps true
- :builds {:scions {:target :browser
-                   :modules {:scions {:init-fn quickstart.scions/init}}}}}

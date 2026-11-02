@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	The app's configuration, read into AppConfig at launch. One entry per key the slices require
+	(Registry.requireConfig), its value taken from the .xcconfig files, e.g.
+
+	<key>API_BASE_URL</key>
+	<string>$(API_BASE_URL)</string>
+
+	The rest of Info.plist is generated from the INFOPLIST_KEY_* settings in Base.xcconfig.
+	-->
+	<key>AppConfig</key>
+	<dict/>
+</dict>
+</plist>

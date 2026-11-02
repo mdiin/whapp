@@ -3,10 +3,11 @@ name: build-state-view
 authors:
   - Matthias Varberg Ingesman
 description: >
-  Use when implementing a new read slice / projection from a slice.json event model in this project.
-  Two view kinds, both from the Ledjer library: `defview` (the default) and `defpersistedview` (only
-  for views that process many events or need advanced querying). Always use one of these macros -
-  do not offer other alternatives.
+  Use when implementing a new read slice / projection from a slice.json event model in this project:
+  events → read model → (optionally) a SwiftUI screen. Two read model kinds: a `ReadModel` (a ledjer-swift
+  `StateView`, the default) and a ledjer-swift `PersistedStateView` with a `GRDBAccumulator` (only for read
+  models that process many events or need advanced querying). Always use one of these - do not offer
+  other alternatives.
 ---
 
 # Build State View Slice
@@ -19,29 +20,38 @@ description: >
 
 ## What a State View Slice is
 
-Directory layout is flat:
-- `src/{basepackage-path}/slices/{context}/{slicename}/slice.clj`
-- `src/{basepackage-path}/slices/{context}/{slicename}/scion.cljs` for any client-side dynamic behaviour
-- `src/{basepackage-path}/slices/{context}/{slicename}/shared.cljc` for anything shared between the main slice code and the scion code
-- shared `src/{basepackage-path}/slices/events.clj` for the events
-
-Directory names are the namespace segments with `-` replaced by `_` (namespace
-`...slices.understanding-eventsourcing.cart-items.slice` lives in
-`.../slices/understanding_eventsourcing/cart_items/slice.clj`).
+A state view slice is **events → read model → screen**. The screen is there only if the read model has an
+OUTBOUND `SCREEN` dependency; it shows the read model, has the forms of the commands on its screens, and
+moves on after a command as the board's timeline says.
 
 A state view slice consists of:
 
-- A projection for each `readmodel` in the slice
-- Only if a read model has an OUTBOUND `SCREEN` dependency:
-  - A page generation function returning hiccup
-  - A page handler interceptor
-  - A set of routes in Pedestal route syntax in `routes` containing one entry for the page handler interceptor
+- A read model per `readmodel` in the slice (step 3.1 or 3.1p)
+- Only if a read model has an OUTBOUND `SCREEN` dependency: a SwiftUI screen with its forms and
+  navigation (step 3.2), and a `#Preview`
+- A `register(in:)` function: the screen's route, the commands and screens it uses, and for a persisted
+  view its table and lifecycle (step 3.3)
+- Tests of the read model, and snapshot tests of the screen (step 4)
 
-All this goes into the `slice.clj` file.
+### Names and files
 
-**Optionally** a `scion.cljs` file which contains client-side scripts for dynamic page functionality (think Javascript, but using Clojurescript instead). Code that is usable in both `slice.clj` and `scion.cljs` is put in `shared.cljc`, making it available in both settings.
+Names follow the `build-state-change` skill ("Names and files"): `{context}`/`{Context}`, `{slice}`/`{Slice}`.
+The **route name** of the screen is `{context}/{slice}` — the contract between slices: other slices link and
+navigate to it by that name.
 
-The page handler interceptor `{slicename}-page-handler` uses the defined views (`defview`s, or the accumulators of `defpersistedview`s) to get the data, then pass that data to the `{slicename}-page` function, which returns the hiccup that is put in the response body from the page handler.
+```
+AppCore/Sources/AppCore/
+├── Events/{Context}/{EventName}.swift              ← events (step 2), listed in Events/AllEvents.swift
+├── Slices/{Context}/{Context}.swift                ← `enum {Context} {}`: create it if it doesn't exist
+├── Slices/{Context}/{Slice}/{Slice}.swift          ← read model(s) and `register(in:)`
+├── Slices/{Context}/{Slice}/{Slice}Screen.swift    ← the screen and its preview, if there is a screen
+└── Slices/Slices.swift                             ← one line per slice: `{Context}.{Slice}.register(in: &registry)`
+AppCore/Tests/AppCoreTests/Slices/{Context}/{Slice}/{Slice}Tests.swift
+AppCore/Tests/AppCoreTests/Slices/{Context}/{Slice}/__Snapshots__/       ← recorded screen images
+```
+
+**Never refer to another slice's types.** Other slices' commands and screens are used by name, through the
+registries, so they may be built later.
 
 ## Step 1 — Read the slice.json
 
@@ -50,711 +60,452 @@ From the slice definition, extract:
 - **context** — the bounded context
 - **events[]** - the events defined in this slice
 - **readmodels[]** — the read model(s) this slice serves
+- **screens[]** — the screens, if any
 - **specifications[]** — test scenarios (given/when/then)
 
 > **Comments & description**: each element carries a `comments: string[]` array (board comments) and a `description` field — use them as implementation hints, and resolve consumed comments via `POST <BASE_URL>/api/org/<ORG_ID>/boards/<BOARD_ID>/nodes/<nodeId>/comments/<commentId>/resolve`.
 
 ---
 
-## Step 2 - the events - only if it doesn't alread exist
+## Step 2 — the events — only if they don't already exist
 
-**Check `src/{basepackage-path}/slices/events.clj` first;** add any events which do not exist to this file, taken from:
+Add the events that don't exist yet, exactly as in step 2 of the `build-state-change` skill (including
+`AllEvents.types` and "Field types"), taken from:
 
-- all the readmodel's `INBOUND` dependencies
+- all the read model's `INBOUND` dependencies
 - all the slice's `events`
 
-```clojure
-(defevent {eventname}
-  :type :{context}/{eventname}
-  :schema [:map
-           ...]
-  :tags [...])
-```
+## Step 3.0 — which kind of read model
 
-**`:tags` is created from the event's fields with `idAttribute: true`**: `[(payload-path <idField1>) ... (payload-path <idFieldN>)]`
+**Default to `ReadModel`** (step 3.1): it reduces the read model's events whenever it is read. Use a
+**persisted view** (step 3.1p) only when at least one of these holds:
 
-**`:schema` is a Malli schema created from the event's fields**: `[:map [:<field1.name> :<field1.type>] ... [:<fieldN.name> :<fieldN.type>]]`
+- the read model processes a lot of events, e.g. from many different entities, so reducing them on every
+  read is too expensive
+- it must support advanced querying, e.g. search, filtering, sorting, paging
 
-**Example slice.json event (abbreviated):**
-
-```json
-{
-      ...,
-      "modelContext": "Understanding Eventsourcing",
-      "title": "Cart Created",
-      "fields": [
-        {
-          "name": "cartId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": true
-        },
-        {
-          "name": "userId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": true
-        },
-        {
-          "name": "description",
-          "type": "string",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        }
-      ],
-    ...
-    }
-```
-
-**Becomes this event in `events.clj`**:
-
-```clojure
-(defevent cart-created
-  :type :understanding-eventsourcing/cart-created
-  :schema [:map
-           [:cart-id :uuid]
-           [:user-id :uuid]
-           [:description :string]]
-  :tags [(payload-path :cart-id) (payload-path :user-id)])
-```
-
-
-## Step 3 — the read slice
-
-```clojure
-(ns {basepackage}.slices.{context}.{slicename}.slice
-  (:require
-   [{basepackage}.common.coercion :as coercion]
-   [{basepackage}.common.interceptors :as interceptors]
-   [{basepackage}.common.utils :as utils]
-   [{basepackage}.slices.events :as ev]
-   [dk.planm.ledjer :as l]
-   [dk.planm.ledjer.event :as le]
-   [dk.planm.ledjer.protocols :as p] ;; persisted views only
-   [donut.system :as ds]             ;; persisted views only
-   [huff2.core :as h]
-   [io.pedestal.http.csrf :as csrf]
-   [io.pedestal.http.response :refer [respond-with]]
-   [tick.alpha.interval :as ti]
-   [tick.core :as t]))
-
-;; Projections / views (step 3.1)
-
-;; Hiccup generation (step 3.2)
-
-;; Page handler Pedestal interceptor (step 3.3)
-
-;; Routes (step 3.4)
-```
-
-Remove requires the slice ends up not using.
-
-
-## Step 3.0 - which kind of view
-
-Each readmodel in slice.json becomes one view from ledjer. **Default to `defview`.** Use
-`defpersistedview` only when at least one of these holds:
-
-- the view processes a lot of events, e.g. from many different entities, so re-reducing them on every
-  query is too expensive
-- the view must support advanced querying over its data, e.g. search, filtering, sorting, paging
-
-If slice.json or its comments don't say so, use `defview`. If you pick `defpersistedview`, record why in
+If slice.json or its comments don't say so, use `ReadModel`. If you pick a persisted view, record why in
 `progress.txt`.
 
-A persisted view differs from a normal view in three ways:
+## Step 3.1 — the read model (`ReadModel`)
 
-1. It uses a subscription under the hood, keeping its accumulator up to date as events arrive.
-2. It does **not** support runtime tag-bindings: it always reduces every event of its types (narrowed only by
-   tag-bindings written in the `defpersistedview` itself). Restrict by user, id etc. when *querying* the
-   accumulator instead.
-3. It has its own lifecycle, like an automation: it is started and closed as a donut.system component.
+```swift
+import Foundation
+import Ledjer
 
-Because of this it is not called with tag-bindings and does not return a value. You `deref` it to get at the
-underlying **persisted accumulator**, which you query with whatever API the concrete database or data
-structure has. Ledjer promotes no particular accumulator, as they are highly application-specific.
+extension UnderstandingEventsourcing {
+    enum CartItems {
+        static let name = "understanding-eventsourcing/cart-items"
 
-- `defview` → Step 3.1
-- `defpersistedview` → Step 3.1p (and the `p` variants 3.3p and 3.5p)
-
-Steps 3.2 and 3.4 are the same for both.
-
-## Step 3.1 - projections / views (`defview`)
-
-Base pattern is this:
-
-```clojure
-(l/defview {readmodel}
-  {} ;; <- the initial value of acc, a map of the readmodel's fields with default values
-  (ev/{event1})
-  (fn {event1}-reducer
-    [acc event]
-    ;; ...modify acc as necessary
-    )
-
-  (ev/{event2})
-  (fn {event2}-reducer
-    [acc event]
-    ;; ... modify acc as necessary
-    )
-
-  ... and so on
-  )
-```
-
-Build up `acc` from the **INBOUND** events of the readmodel. Every INBOUND event type gets exactly one reducer — ledjer throws if a sourced event has none. Read an event's fields with `(le/payload event)`. The specifications define any special requirements on how the readmodel's reducers must update `acc`.
-
-**The shape of `acc`** follows from how the read model is queried (step 3.3):
-
-- **One entry** — every id attribute of the read model is known when it is queried (from the path or the session): `acc` is a single map of the read model's fields, starting as `{}`.
-- **Many entries** — some id attribute is *not* known when it is queried (e.g. `cartId` is in the path but `itemId` isn't, so the read model lists the items in a cart), or the screen shows a list: `acc` is a map from that id to a map of the read model's fields, starting as `{}`. Use a set, `#{}`, only when entries have no id attribute at all.
-
-A field with a non-empty `mapping` takes its value from the event field named by `mapping` (e.g. `totalPrice` with `"mapping": "price"` is set from the event's `price`).
-
-**Example (abbreviated)**:
-
-This slice.json readmodel
-
-```json
-{
-      ...,
-      "title": "cart items",
-      "fields": [
-        {
-          "name": "cartId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": true
-        },
-        {
-          "name": "description",
-          "type": "String",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "image",
-          "type": "String",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "price",
-          "type": "Double",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "totalPrice",
-          "type": "Double",
-          "example": "",
-          "mapping": "price",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "productId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": false
-        },
-        {
-          "name": "itemId",
-          "type": "UUID",
-          "example": "",
-          "mapping": "",
-          "optional": false,
-          "subfields": [],
-          "cardinality": "Single",
-          "idAttribute": true
+        struct Item: Codable, Sendable, Equatable {
+            var cartId: UUID
+            var itemId: UUID
+            var productId: UUID
+            var description: String
+            var image: String
+            var price: Decimal
+            var totalPrice: Decimal
         }
-      ],
-      "type": "READMODEL",
-      "dependencies": [
-        ...,
-        {
-          "id": "a39b1e41-7b38-42b1-8ad3-c9cc18ca2f7c",
-          "type": "INBOUND",
-          "title": "Cart Created",
-          "elementType": "EVENT"
-        },
-        {
-          "id": "544d0a8c-809c-4670-a9d9-aa8259f43c46",
-          "type": "INBOUND",
-          "title": "Item Added",
-          "elementType": "EVENT"
-        },
-        {
-          "id": "b5b7ae0a-d0a7-4b2b-bc14-2086993eface",
-          "type": "INBOUND",
-          "title": "Item Removed",
-          "elementType": "EVENT"
-        },
-        {
-          "id": "d7cb2a4a-6d1a-4abf-9a37-0bdd9b84eb32",
-          "type": "INBOUND",
-          "title": "Cart Cleared",
-          "elementType": "EVENT"
-        },
-        {
-          "id": "3d3f9528-08f8-473b-8456-7b03f6d368ca",
-          "type": "INBOUND",
-          "title": "Item Archived",
-          "elementType": "EVENT"
-        }
-      ],
-      ...
+
+        static let model = ReadModel(initial: [UUID: Item](), bindings: [
+            .on(ItemAdded.self) { items, event in
+                items[event.itemId] = Item(
+                    cartId: event.cartId, itemId: event.itemId, productId: event.productId,
+                    description: event.description, image: event.image, price: event.price,
+                    totalPrice: event.price)
+            },
+            .on(ItemRemoved.self) { items, event in items[event.itemId] = nil },
+            .on(CartCleared.self) { items, _ in items = [:] },
+            // ... one binding per INBOUND event
+        ])
+
+        // register(in:) — step 3.3
+    }
 }
 ```
 
-is queried by `cartId` (the cart page's path) but not by `itemId`, so it has many entries keyed by `item-id`. It becomes this ledjer `defview` (abbreviated, showing two of the five events):
+- **One binding per INBOUND event** of the read model: ledjer throws if an event it reads has none (or two).
+- **The state's shape** follows from how the read model is read:
+  - **One entry** — every id attribute of the read model is known when it is read (from the screen's
+    route): the state is one struct of the read model's fields, optional or with defaults until the first
+    event (`initial: Cart?.none`).
+  - **Many entries** — some id attribute is *not* known when it is read (`cartId` is in the route but
+    `itemId` isn't), or the screen shows a list: a dictionary from that id to a struct of the read model's
+    fields, starting as `[:]`. An array only when entries have no id attribute at all.
+- **Fields** are the read model's fields, with "Field types" from `build-state-change`. A field with a
+  non-empty `mapping` takes its value from the event field named by `mapping` (`totalPrice` with
+  `"mapping": "price"` is set from the event's `price`).
+- The specifications define any special requirements on how the bindings update the state.
+- The state, and everything in it, is `Sendable` and `Equatable` (tests compare it).
 
-```clojure
-(l/defview cart-items
-  {}
-  (ev/item-added)
-  (fn item-added-reducer
-    [acc event]
-    (let [{:keys [cart-id item-id product-id description image price]} (le/payload event)]
-      (assoc acc item-id {:cart-id cart-id
-                          :item-id item-id
-                          :product-id product-id
-                          :description description
-                          :image image
-                          :price price
-                          :total-price price})))
+## Step 3.1p — a persisted view
 
-  (ev/item-removed)
-  (fn item-removed-reducer
-    [acc event]
-    (dissoc acc (:item-id (le/payload event))))
+A persisted view keeps tables of the app's SQLite database up to date from a subscription, and the screen
+reads the tables. Its reducers are pure: they return `GRDBOperation`s, which ledjer commits in batches,
+together with the view's checkpoint.
 
-  ;; ... add the reducers for cart-created, cart-cleared and item-archived
-  )
+```swift
+import Foundation
+import GRDB
+import Ledjer
+import LedjerGRDB
+
+extension Catalog {
+    enum ProductSearch {
+        static let name = "catalog/product-search"
+        static let table = "catalog_product_search"
+
+        static let view = PersistedStateView<GRDBOperation>(bindings: [
+            .on(ProductAdded.self) { event in
+                [GRDBOperation { db in
+                    try db.execute(
+                        sql: "INSERT INTO \(table) (productId, name, price) VALUES (?, ?, ?)",
+                        arguments: [event.productId.uuidString, event.name, "\(event.price)"])
+                }]
+            },
+            .on(ProductRemoved.self) { event in
+                [GRDBOperation { db in
+                    try db.execute(sql: "DELETE FROM \(table) WHERE productId = ?", arguments: [event.productId.uuidString])
+                }]
+            },
+        ])
+
+        struct Product: Codable, Sendable, Equatable, FetchableRecord { var productId: String; var name: String; var price: String }
+
+        /// The queries the screen needs.
+        static func search(_ db: Database, text: String) throws -> [Product] {
+            try Product.fetchAll(db, sql: "SELECT * FROM \(table) WHERE name LIKE ? ORDER BY name", arguments: ["%\(text)%"])
+        }
+
+        static func register(in registry: inout Registry) {
+            registry.migration("\(name)/v1") { db in
+                try db.create(table: table) { t in
+                    t.primaryKey("productId", .text)
+                    t.column("name", .text).notNull()
+                    t.column("price", .text).notNull()
+                }
+            }
+            registry.persistedView(name) { system in
+                let accumulator = try await GRDBAccumulator.open(name: name, writer: system.database)
+                var options = PersistedViewOptions()
+                options.onError = system.reportError
+                return try await view.start(on: system.store, accumulator: accumulator, options: options)
+            }
+            // registry.route(...) if there is a screen — step 3.3
+        }
+    }
+}
 ```
 
-## Step 3.1p - persisted views (`defpersistedview`)
+- **One binding per INBOUND event**, as for `ReadModel`. A reducer never does IO: it only returns
+  operations. No runtime tag bindings: the view reduces every event of its types, so filter by user, id
+  etc. in the queries.
+- **The table** is created by a migration registered as `"{context}/{slice}/v1"`. Migrations are never
+  changed once shipped: a changed table is a new migration (`/v2`). To rebuild a read model after its
+  reducers change, a new migration empties the table and calls
+  `GRDBAccumulator.clearCheckpoint(named: name, in: db)`; the view then replays every event.
+- Store `Decimal` as text (`"\(price)"`), `UUID` as `uuidString`, `CalendarDate` as its `description`,
+  and `Date` as `timeIntervalSince1970`, so values round-trip exactly.
+- `registry.persistedView` gives the view the app's lifecycle: it runs while the app is active, and
+  resumes after its checkpoint when the app becomes active again.
+- The read model may lag a little behind the latest events: a screen observing its tables updates when
+  the view commits.
 
-A persisted view has two parts: the `defpersistedview` with its reducers, and a **persisted accumulator**.
-
-### The view
-
-Same binding pairs as `defview`, but there is **no initial acc**: the accumulator is passed in when the view
-is started.
-
-```clojure
-(l/defpersistedview {readmodel}
-  (ev/{event1})
-  (fn {event1}-reducer
-    [acc event]
-    (p/-tx-append acc [:put (:{id-field} (le/payload event)) {...}]))
-
-  (ev/{event2})
-  (fn {event2}-reducer
-    [acc event]
-    (p/-tx-append acc [:delete (:{id-field} (le/payload event))]))
-
-  ;; ... one reducer per INBOUND event, as for defview
-  )
-```
-
-(`p` is `dk.planm.ledjer.protocols`.)
-
-- Every INBOUND event type gets exactly one reducer, as for `defview`. A missing reducer, or a throwing one,
-  fails the view (`:phase :reduce`); events are never skipped.
-- Reducers do **not return a new acc**: they call `(p/-tx-append acc op)` for their side effect, and the
-  return value is ignored. `op` is whatever the accumulator understands. **No IO in reducers** - the ops are
-  committed in batches by the view (every 64 events or 200 ms by default).
-- Build the ops from the **INBOUND** events and the readmodel's fields just as for `defview` (including
-  `mapping`). The specifications define any special requirements.
-- Calling `({readmodel} event-store acc & opts)` starts the view and returns a handle. `@handle` gives `acc`
-  (and rethrows the view's failure, if it has failed); `(.close handle)` flushes and closes it. Options
-  (`:max-size`, `:max-ms`, `:commit-retries`, `:commit-backoff-ms`, `:on-error`) are rarely needed.
-
-### The accumulator
-
-Implement `dk.planm.ledjer.protocols/PersistedAccumulator` for the application's concrete store (a database,
-a search index, ...) in `src/{basepackage-path}/slices/{context}/{slicename}/slice.clj`, together with a
-constructor `new-{readmodel}-acc`. Choose the store from the project's existing dependencies and the querying
-the read model needs. If there is no suitable one, invoke `/request-feedback` instead of inventing a
-dependency.
-
-```clojure
-(defn new-{readmodel}-acc
-  [{dependencies, e.g. a datasource}]
-  (let [pending-ops (atom [])]
-    (reify
-      p/PersistedAccumulator
-      (-sequence-number [_]
-        ;; The sequence number last passed to -tx-commit, or nil if fresh.
-        ;; Must be read from the store itself, so it survives restarts.
-        )
-      (-tx-append [this op]
-        ;; Buffer op. Must not do IO.
-        (swap! pending-ops conj op)
-        this)
-      (-tx-commit [_ sequence-number]
-        ;; Atomically write the buffered ops AND sequence-number to the store.
-        ;; Once this returns the data must be readable and -sequence-number
-        ;; must return sequence-number. If it throws, leave the buffered ops
-        ;; intact: it is retried with the same sequence-number.
-        ;; Clear the buffer only after success.
-        )
-      (-reset [this]
-        ;; Reset to an empty state, including the sequence number. Return this.
-        )
-
-      ;; The query API: methods, or e.g. clojure.lang.IFn / a protocol of your own.
-      )))
-```
-
-- The sequence number is stored **together with** the data, in the same transaction: on restart the view
-  resumes after it. A fresh accumulator returns `nil` and the view starts from the first event.
-- If the accumulator holds resources, implement `java.lang.AutoCloseable`; closing the view closes it.
-- Expose the queries the read model needs as the accumulator's own API (e.g. `search`, `by-id`). Page
-  handlers (step 3.3p) call these, not the underlying store.
-- If a query result depends on the user, the query takes `user-id` as an argument: there are no runtime
-  tag-bindings to do it for you.
-
-### The lifecycle component
-
-Like an automation, a persisted view is a donut.system component:
-
-```clojure
-(def component-map
-  #::ds{:start (fn [{::ds/keys [config]}]
-                 (let [{:keys [event-store {dependency}]} config]
-                   ({readmodel} event-store (new-{readmodel}-acc {dependency}))))
-
-        :stop (fn [{::ds/keys [instance]}]
-                (.close ^java.lang.AutoCloseable instance))
-
-        :config {:event-store (ds/ref [:shared :event-store])
-                 :{dependency} (ds/ref [:shared :{dependency}])}})
-```
-
-`instance` is the view handle. `ds` is `donut.system`; require it in the slice namespace.
-
-Add it to the system map under the **`:views`** group in `src/{basepackage-path}/system.clj`, keyed by the
-read model name (kebab-case keyword):
-
-```clojure
-:views
-{...
- :{readmodel} slice.{context}.{slicename}/component-map}
-```
-
-Require the slice there as `slice.{context}.{slicename}`. If the page handler uses the view (step 3.3p) and
-the webserver's `:connector` still has `:views {}` in its `:config`, replace it with `(ds/ref [:views])` -
-a one-time change, as donut rejects a ref to an empty group, so the scaffold ships with `{}`. Every external dependency must exist under
-`:shared`; otherwise the slice is `Blocked`.
-
-## Steps 3.2–3.4 — only for read models shown on a screen
-
-Steps 3.2 to 3.4 apply only if the readmodel is attached to a screen element, i.e. it has an **OUTBOUND**
-dependency of elementType **SCREEN** in slice.json. Otherwise the slice is just the view (and, for a persisted
-view, its component) and its tests.
+## Step 3.2 — the screen — only if a read model has an OUTBOUND `SCREEN` dependency
 
 **Find the screen's commands first.** The read model's OUTBOUND SCREEN dependencies point at screens, most
 of which live in *other* slices. Look each one up by `id` in `.build-kit/.slices/{context}/*/slice.json`
-(`screens[]`). Every OUTBOUND `COMMAND` dependency on those screens is a form or button on this page,
-posting to the state-change slice that owns the command.
+(`screens[]`). Every OUTBOUND `COMMAND` dependency on those screens is a form or button on this screen,
+sending that command to the state-change slice that owns it.
 
 Example: the `cart items` read model has three OUTBOUND SCREEN dependencies. One is the screen in this slice;
 the others are in `removeitem` and `clearcart`, with OUTBOUND commands `Remove Item` and `Clear Cart`. The
-cart items page therefore has a form per item posting to Remove Item, and one form posting to Clear Cart.
+cart items screen therefore has a remove button per item, and a clear button.
 
-## Step 3.2 - hiccup generation
+**Then find where each command leads.** `load-slice` writes `navigation.json` into the folder of every
+state-change slice (`.build-kit/.slices/{context}/{commandslice}/navigation.json`): the state-view slices
+that follow the command on its timeline, resolved to the screens they show. See "Navigation" below.
 
-A function `{slicename}-page` taking keyword arguments and returning a hiccup vector:
+### The screen
 
-```clojure
-(defn {slicename}-page
-  [& attrs]
-  (let [{:keys [csrf-token
-                graft
-                {readmodel-data}
-                {command}-url
-                {command}-errors]} attrs]
-    [:main ...]))
+```swift
+import Foundation
+import Ledjer
+import SwiftUI
+
+extension UnderstandingEventsourcing.CartItems {
+    struct Parameters: Codable, Sendable { var cartId: UUID }
+
+    struct Screen: View {
+        let system: AppSystem
+        let cartId: UUID
+        @State private var live: LiveValue<[UUID: Item]>
+        @State private var errors: [String: CommandErrors] = [:]
+        @Environment(Navigator.self) private var navigator
+
+        init(system: AppSystem, cartId: UUID) {
+            self.init(system: system, cartId: cartId,
+                      live: LiveValue(system, model, where: [.payload("cartId"): .bound(cartId)]))
+        }
+
+        /// Also for snapshot tests, with a value loaded beforehand.
+        init(system: AppSystem, cartId: UUID, live: LiveValue<[UUID: Item]>) {
+            self.system = system
+            self.cartId = cartId
+            _live = State(initialValue: live)
+        }
+
+        var body: some View {
+            content
+                .navigationTitle("Cart")
+                .task { await live.run() }
+        }
+
+        @ViewBuilder private var content: some View {
+            if let items = live.value {
+                List {
+                    ForEach(items.values.sorted { $0.description < $1.description }, id: \.itemId) { item in
+                        HStack {
+                            Text(item.description)
+                            Spacer()
+                            Text(item.price, format: .number)
+                        }
+                        .swipeActions {
+                            Button("Remove", role: .destructive) { Task { await removeItem(item.itemId) } }
+                                .disabled(!system.commands.isRegistered("understanding-eventsourcing/remove-item"))
+                        }
+                    }
+                    ErrorMessages(errors["understanding-eventsourcing/remove-item"]?.general ?? [])
+                }
+            } else if let failure = live.failure {
+                ContentUnavailableView("Could not load", systemImage: "exclamationmark.triangle",
+                                       description: Text(String(describing: failure)))
+            } else {
+                ProgressView()
+            }
+        }
+
+        private func removeItem(_ itemId: UUID) async {
+            let command = "understanding-eventsourcing/remove-item"
+            do {
+                try await system.send(command, ["cartId": .uuid(cartId), "itemId": .uuid(itemId)])
+                errors[command] = nil
+                // Navigation: navigation.json says the next view is this screen again: stay.
+            } catch {
+                errors[command] = CommandErrors(error)
+            }
+        }
+    }
+}
+
+#Preview {
+    let cartId = UUID()
+    PreviewHost(given: [
+        ItemAdded(cartId: cartId, description: "Shoes", image: "", price: Decimal(string: "59.95")!,
+                  itemId: UUID(), productId: UUID()),
+    ]) { system in
+        UnderstandingEventsourcing.CartItems.Screen(system: system, cartId: cartId)
+    }
+}
 ```
 
-- **Return only the page content.** Never emit `[:html ...]`, `[:head ...]` or `[:body ...]` — the
-  `hiccup-interceptor` wraps every hiccup response body in the site layout.
-- **Show the screen's `fields`** — they are what the page displays. Take their values from the read model.
-  Show `DateTime` values (instants) through `(coercion/instant->local-date-time instant)`, never in UTC.
-- **One form per command found above**, posting to that command's change slice:
+- **Route parameters** are the read model's id attributes known when the screen opens — the ones it is
+  read by (`cartId`, not the list's `itemId`). They are decoded from the route into `Parameters` (step 3.3).
+  Ids of the signed-in user (e.g. `userId`) come from wherever the project's `CLAUDE.md` says; if it says
+  nothing and the read model needs one, invoke `/request-feedback`.
+- **The read model**: `LiveValue(system, model, where: [...])`, with the route parameters as tag bindings
+  (only tags the read model's events have), or for a persisted view
+  `LiveValue(system, observing: { db in try search(db, text: ...) })`. `.task { await live.run() }` follows it
+  while the screen is shown and the app is active; nothing else is needed to refresh after a command.
+- **Show the screen's `fields`** — they are what the screen displays, taken from the read model. Show `Date`
+  values with `.formatted(...)` (device time zone), `CalendarDate` with its own formatting, `Decimal` with
+  `.number` or `.currency(code:)`.
+- **Loading and failure**: `live.value == nil` while loading; `live.failure` if loading failed.
 
-```clojure
-[:form {:action {command}-url
-        :method :post}
- ;; one input per command field the user fills in; hidden inputs for the ids
- [:input {:type "hidden"
-          :name "{id-field}"
-          :value {id-value}}]
- [:input {:type "hidden"
-          :name "__anti-forgery-token"
-          :value csrf-token}]
- (when (seq {command}-errors)
-   [:span ... {command}-errors])
- [:button {:type "submit"} ...]]
+### Forms — one per command found above
+
+```swift
+@State private var description = ""
+@State private var price: Decimal = 0
+
+Section("Add item") {
+    TextField("Description", text: $description)
+    ErrorMessages(errors[command]?["description"] ?? [])
+    TextField("Price", value: $price, format: .number)
+    ErrorMessages(errors[command]?["price"] ?? [])
+    ErrorMessages(errors[command]?.general ?? [])
+    Button("Add") { Task { await addItem() } }
+        .disabled(!system.commands.isRegistered(command))
+}
 ```
 
-  - Input `name`s are the command's field names, kebab-cased — the change handler reads them from
-    `:form-params`.
-  - Inputs per field type — these are the shapes `coercion/transformer` expects (see "The project's
-    coercion namespace" in the `build-state-change` skill):
-    - `Date`: `<input type="date">`.
-    - `DateTime`: `<input type="datetime-local">`, prefilled with `(coercion/instant->local-date-time instant)` —
-      the project's fixed zone.
-    - `Boolean`: a plain `<input type="checkbox" name="{field}">`. No `value` and no hidden "false" input: an
-      unticked checkbox sends nothing and the command's default makes it `false`.
-    - `cardinality: "List"`: one input per item, all with the same plain `name` — never `name="{field}[]"`.
-    - Optional fields: an empty input is fine, it is treated as not sent.
-    - `Custom` fields with `subfields` and lists of them have no form shape; if a screen needs one, invoke
-      `/request-feedback` instead of inventing one.
-  - `__anti-forgery-token` is required on every form; without it Pedestal's CSRF protection rejects the post.
-  - `{command}-errors` are the errors the change handler put in the flash (step 3.3): a map from field
-    name to messages, with `:command/rejected` holding business-rule errors not tied to a field. Show
-    field errors next to their input and `:command/rejected` errors with the submit button.
-- **Styling and layout follow the project's own `CLAUDE.md`** (design system, CSS classes and tokens).
-  Never write raw design values the project's rules forbid.
-- **Client-side behaviour** (only when the screen's description or comments call for it — show/hide,
-  drag and drop, ...) is a scion:
-  - in the page: `(h/raw-string (graft "{scion-name}" :prev-sibling {...opts}))`, placed directly after the element it acts on;
-  - in `src/{basepackage-path}/slices/{context}/{slicename}/scion.cljs`: a `(defmethod graft/scion "{scion-name}" [opts container] ...)`;
-  - in `src/{basepackage-path}/scions.cljs`: require the scion namespace, or it is never compiled to JavaScript.
+- **Send by name**: `try await system.send("{context}/{commandslice}", payload)`. The payload's keys are the
+  command's field names on the board, exactly; values are `FieldValue`s (`.uuid`, `.string`, `.int`,
+  `.decimal`, `.bool`, `.date`, `.dateTime`, `.list`, `.object`, `.null` for an empty optional field).
+- **Ids** come from the route, the read model or, for a new entity, `UUID()` created by the screen. Never
+  let the user type an id.
+- **Controls per field type**: `String` → `TextField`; `Int`, `Double`, `Decimal` → `TextField(value:format: .number)`;
+  `Boolean` → `Toggle`; `Date` → `DatePicker(displayedComponents: .date)`, sent as `.date(CalendarDate(date))`;
+  `DateTime` → `DatePicker` with `[.date, .hourAndMinute]`, sent as `.dateTime(date)`; `List` → one control per
+  item, or a multiple selection from the read model. `Custom` fields with `subfields` and lists of them have
+  no obvious form shape; if a screen needs one, invoke `/request-feedback` instead of inventing one.
+- **Errors**: `CommandErrors(error)` gives field errors (`errors[command]?["{field}"]`) and general ones
+  (`.general`). Show field errors next to their control and general ones with the button.
+- **Disable** the form while the command isn't registered: its slice may not be built yet.
+- A form with fields the user fills in is typically a sheet or a section, as the board's screen shows it.
+- **Styling and layout follow the project's own `CLAUDE.md`** (design system, components, tokens).
+  Without one, use plain system controls. Never write raw design values the project's rules forbid.
 
-## Step 3.3 - Page handler Pedestal interceptor (`defview`)
+### Navigation
 
-A Pedestal interceptor map named `{slicename}-page-handler` that queries the views and responds with the page.
+What happens after a command succeeds comes from the command's `navigation.json`, **never** from which
+events it appended:
 
-```clojure
-(def {slicename}-page-handler
-  {:name ::{slicename}-page-handler
-   :enter (fn [ctx]
-            (let [event-store (:event-store ctx)
-                  {id-field} (utils/->uuid (get-in ctx [:request :path-params :{id-field}]))
-                  user-id (get-in ctx [:request :session :user-id])]
-              (if-not {id-field}
-                (respond-with ctx 404 "Not found")
-                (let [{readmodel-data} ({readmodel} event-store {(le/payload-path :{id-field}) {id-field}
-                                                                 (le/payload-path :user-id) user-id})]
-                  (respond-with ctx 200 ({slicename}-page
-                                         :csrf-token (get-in ctx [:request ::csrf/anti-forgery-token])
-                                         :graft (get-in ctx [:request :grafter])
-                                         :{readmodel-data} {readmodel-data}
-                                         :{command}-url (utils/url-for-safe :{context}/{command-slicename}
-                                                                            :path-params {:{id-field} {id-field}})
-                                         :{command}-errors (get-in ctx [:request :flash :errors/{commandname}])))))))})
+```json
+{
+  "command": "Remove Item",
+  "destinations": [
+    { "slice": "Cart Items", "informational": true, "screen": "understanding-eventsourcing/cart-items",
+      "readmodel": "cart items" }
+  ],
+  "unresolved": []
+}
 ```
 
-- **Tag bindings** are the read model's id attributes known from the request — path parameters
-  (parsed with `utils/->uuid` for UUIDs) and `:user-id` from the session.
-  - Bind only tags that the view's events have. Ledjer validates every query: a binding for a tag none of
-    the view's event types have throws, and so does a `nil` value.
-  - An event type without the bound tag is sourced **unfiltered** — every event of that type is reduced.
-    If that is not what the read model means, the event's `:tags` are missing an id attribute.
-  - Respond 404 when a path id doesn't parse, rather than letting the query throw.
-- **Command URLs** use `utils/url-for-safe` with the command slice's route name (see "Routes and paths"
-  below). It returns `nil` while that slice isn't built yet, so the page can be built first.
-- **Flash errors** are read from `[:request :flash :errors/{commandname}]` — the key the change handler of
-  the command's slice writes them under.
+- **No destination** → stay. The screen refreshes by itself.
+- **One destination** that is this screen (`screen` is this slice's route name) → stay.
+- **One destination** that is another screen → `navigator.navigate(to: Route("{screen}", parameters))`. It
+  goes back to that screen if it is already on the stack, and pushes it otherwise; it closes a sheet first.
+- **Several destinations** → they are alternatives: the app goes to the first one whose condition holds.
+  Work out each condition from the board — what the destination screens show (e.g. "1 item" vs "0 items and
+  a submit button"), the read models' specifications, descriptions and comments — and evaluate it on this
+  screen's read model after the command: `await live.refresh()`, then test `live.value`. If a condition
+  needs data this read model doesn't have, define a private `ReadModel` for it in this slice. If a
+  condition can't be worked out, invoke `/request-feedback` naming the alternatives.
+- **`unresolved` is not empty** (an informational slice whose original screen wasn't found) → invoke
+  `/request-feedback`.
+- **Parameters** of the destination: its read model's id attributes, taken from this screen's route, the
+  command's payload or the read model, by field name. One that can't be resolved is an error to report
+  (`/request-feedback`), never a guess. Extra parameters are ignored by the destination.
+- A command that throws keeps the screen where it is, showing the errors.
 
-## Step 3.3p - Page handler for a persisted view
-
-The running views are in the request context under `:views`, put there by `interceptors/views-interceptor`
-(already in the connector). The handler derefs the view and queries the accumulator through its own API:
-
-```clojure
-(def {slicename}-page-handler
-  {:name ::{slicename}-page-handler
-   :enter (fn [ctx]
-            (let [acc @(get-in ctx [:views :{readmodel}])
-                  user-id (get-in ctx [:request :session :user-id])
-                  query (get-in ctx [:request :query-params])]
-              (respond-with ctx 200 ({slicename}-page
-                                     :csrf-token (get-in ctx [:request ::csrf/anti-forgery-token])
-                                     :graft (get-in ctx [:request :grafter])
-                                     :{readmodel-data} ({accumulator-query-fn} acc ...)))))})
+```swift
+try await system.send(command, payload)
+errors[command] = nil
+await live.refresh()
+if live.value?.isEmpty == true {  // condition for "Ready to submit", from its screen showing 0 items
+    navigator.navigate(to: Route("checklist/ready-to-submit", ["listId": .uuid(listId)]))
+}  // otherwise the next view is this screen again: stay
 ```
 
-- Everything else (command URLs, flash errors, 404 on unparsable path ids) is as in step 3.3. There are no
-  tag bindings, and the `event-store` isn't used.
-- `@view` rethrows the view's failure, if any. Don't catch it: a failed view is a server error.
-- The view is eventually consistent: it may lag a little behind the latest appended events.
+Links to other screens that aren't the result of a command are `RouteLink(Route(...), system: system) { ... }`,
+disabled while that screen isn't registered.
 
-## Step 3.4 - Routes
+## Step 3.3 — registration
 
-```clojure
-(def routes
-  #{["{path}" :get
-     [#'interceptors/authenticated-interceptor
-      ;; authorized-interceptor, see below
-      #'{slicename}-page-handler]
-     :route-name :{context}/{slicename}-page]})
+```swift
+static func register(in registry: inout Registry) {
+    registry.route(name, title: "Cart Items", parameters: ["cartId"]) { route, system in
+        let parameters = try route.decode(Parameters.self)
+        return Screen(system: system, cartId: parameters.cartId)
+    }
+    registry.uses(command: "understanding-eventsourcing/remove-item", from: name)
+    registry.uses(command: "understanding-eventsourcing/clear-cart", from: name)
+    // registry.uses(route: "...", from: name) for every screen it navigates or links to
+}
 ```
 
-- `authenticated-interceptor` is always included.
-- Add `authorized-interceptor` when the page shows one entity owned by a user — i.e. the entity's creation
-  event has both the entity's id and `user-id` as tags:
+- `title` is the screen's title on the board (or the slice title).
+- `uses` declares every command the screen sends and every screen it navigates or links to; the full
+  suite reports names that end up registered by no slice.
+- Without a screen, `register(in:)` registers nothing for a `ReadModel` — omit it then, and the line in
+  `Slices.swift` — or only the persisted view's migration and lifecycle (step 3.1p).
 
-```clojure
-(interceptors/authorized-interceptor
- :event-type (ev/{creation-event})
- :entity-id-key :{id-field}
- :entity-id-path [:request :path-params :{id-field}])
+Then add `{Context}.{Slice}.register(in: &registry)` to `Slices.register(in:)` in `Slices/Slices.swift`.
+
+## Step 4 — tests
+
+One `@Test` per specification, with Swift Testing and ledjer-swift's scenarios on a fresh in-memory store:
+
+```swift
+import Foundation
+import Ledjer
+import Testing
+
+@testable import AppCore
+
+@Suite struct CartItemsTests {
+    typealias Slice = UnderstandingEventsourcing.CartItems
+    let cartId = UUID(uuidString: "6B4D7F0E-2F0A-4C55-9C8E-1F6A2B3C4D5E")!
+    let itemId = UUID(uuidString: "0D1E2F30-4152-6374-8596-A7B8C9DAEBFC")!
+
+    @Test func listsAddedItems() async throws {
+        try await gwt(
+            given: [ItemAdded(cartId: cartId, description: "Shoes", image: "", price: Decimal(string: "59.95")!,
+                              itemId: itemId, productId: itemId)],
+            view: { try await Slice.model.run(on: $0, where: [.payload("cartId"): .bound(cartId)]) },
+            then: [itemId: Slice.Item(cartId: cartId, itemId: itemId, productId: itemId, description: "Shoes",
+                                      image: "", price: Decimal(string: "59.95")!, totalPrice: Decimal(string: "59.95")!)])
+    }
+}
 ```
 
-  It responds 404 when the session user doesn't own the entity.
-- `{path}` is described in "Routes and paths" below.
+**A persisted view** is tested with `gt`, which starts the view on a fresh store, appends `given`, waits
+until the view has committed it, and then checks `then`. The accumulator is fresh per test, on the database
+of a fresh in-memory system (which has the slice's tables):
 
-**Wire the routes into the system**: in `src/{basepackage-path}/system.clj`, require the slice namespace as
-`slice.{context}.{slicename}` and add `slice.{context}.{slicename}/routes` to the `set/union` of routes.
-
-## Routes and paths
-
-The **route name is the contract between slices**: pages and redirects always refer to routes by name via
-`utils/url-for-safe`, never by path. Route names are mechanical:
-
-- page (state view): `:{context}/{slicename}-page`
-- change (state change): `:{context}/{slicename}`
-
-The **path** is resource-style. Decide it in this order:
-
-1. **Override** — if the screen (for a page) or the command (for a change) has a comment `path: /...`, use
-   exactly that path. Never resolve a `path:` comment: it stays on the board as the route's specification,
-   so a later rebuild of the slice produces the same path.
-2. **Resource** — one `/{entities}/:{id-field}` pair per id attribute, leaving out `user-id` (it comes from
-   the session):
-   - `{entities}` is the plural of the id field's name without `-id`: `cart-id` → `/carts/:cart-id`.
-     For a generic id field (`id`, `aggregate-id`), name the entity from the read model, screen or command
-     title instead (`Publish Cart` → `carts`).
-   - With several ids, the parent comes first: the entity that exists before the other, i.e. whose id the
-     other entity's events carry. `cart-id` + `item-id` → `/carts/:cart-id/items/:item-id`. If that can't
-     be decided from the model, keep the order of the fields in slice.json.
-3. **Suffix**
-   - A page for one entity has no suffix (`/recipes/:recipe-id`), unless that path is taken; then use the
-     screen's purpose from the slice name (`/recipes/:recipe-id/edit`).
-   - A page listing entities is `/{entities}`, plus a qualifier from the slice name when needed
-     (`/recipes/unarchived`).
-   - A change is a `POST` to the resource plus the command name, kebab-cased
-     (`/recipes/:recipe-id/archive-recipe`). A change that creates the entity posts to `/{entities}`.
-4. **Collision check** — search the existing `routes` in `src/{basepackage-path}/slices/**/slice.clj` for the same
-   path and verb. Depending on the router, a duplicate either stops Pedestal from starting or silently
-   shadows one of the routes — and slice tests don't load `system.clj`, so they won't catch it. On a
-   collision, add a suffix from the slice name.
-
-Unless the path came from a `path:` comment, record it as an assumption in `progress.txt`.
-
-The same rules are in the `build-state-change` skill; keep the two in sync.
-
-## Step 3.5 - Tests
-
-Ledjer ships with an in-memory event-store to be used for testing. For a persisted view, see step 3.5p
-instead of the `gwt` example below.
-
-Write Given-When-Then scenarios as plain clojure.test `testing` s-expressions under the same `deftest` expression.
-
-```
-(ns {basepackage}.slices.{context}.{slicename}.slice-test
-  (:require
-   [clojure.test :refer [deftest testing]]
-   [{basepackage}.slices.events :as ev]
-   [{basepackage}.slices.{context}.{slicename}.slice :as slice]
-   [dk.planm.ledjer :as l]
-   [dk.planm.ledjer.event :as le]))
-
-(deftest {readmodel}
-  (testing "test 1"
-    (l/gwt
-     :given [(ev/event-1 {...})]
-     :when [#'slice/{readmodel} {(le/payload-path :id-attribute-1) "value-1"
-                                 ;; ... other id attributes
-                                 }]
-     :then {;; ... the readmodel's expected shape
-     })))
+```swift
+@Test func findsProductsByName() async throws {
+    let system = try await AppSystem.inMemory()
+    try await gt(
+        view: Slice.view,
+        accumulator: try GRDBAccumulator(name: Slice.name, writer: system.database),
+        given: [ProductAdded(productId: id, name: "Shoes", price: Decimal(string: "59.95")!)],
+        then: { _ in try await system.database.read { try Slice.search($0, text: "sho") }.map(\.name) == ["Shoes"] })
+}
 ```
 
-Create events using the event constructor functions in `src/{basepackage-path}/slices/events.clj`, avoid commands from other slices.
+### Snapshot tests of the screen
 
-Only the views are tested; the page function, page handler and routes are not.
+Every screen gets snapshot tests, on an iPhone and an iPad (`Tests/AppCoreTests/Support/Snapshots.swift`):
+one for an empty read model and one per specification of the read model, given its events.
 
-## Step 3.5p - Tests for a persisted view
-
-A persisted view has no `when`: test it with Given-Then, `l/gt`, which starts the view on an in-memory
-event-store, appends the `given` events, waits until the view has committed them, and then calls the `then`
-predicate with the accumulator.
-
-```clojure
-(deftest {readmodel}
-  (testing "test 1"
-    (l/gt
-     :view #'slice/{readmodel}
-     :acc (slice/new-{readmodel}-acc ...)
-     :given [(ev/event-1 {...})]
-     :then (fn [acc]
-             (= {expected} ({accumulator-query-fn} acc ...))))))
+```swift
+#if canImport(UIKit)
+extension CartItemsTests {
+    @Test @MainActor func screenWithAnItem() async throws {
+        let system = try await AppSystem.inMemory(given: [/* the specification's given events */])
+        let live = LiveValue(system, Slice.model, where: [.payload("cartId"): .bound(cartId)])
+        await live.refresh()
+        assertScreenSnapshots(of: Slice.Screen(system: system, cartId: cartId, live: live), system: system,
+                              named: "one-item")
+    }
+}
+#endif
 ```
 
-- `:view` is the var of the view (note `#'`).
-- `:acc` is a **fresh** accumulator, created per `testing` - never shared between tests. It is the same kind of
-  accumulator as in production, and the view closes it when done. If the production store is external (a
-  database), use an in-memory or temporary instance of it for tests; invoke `/request-feedback` if there is none.
-- `:then` is a **predicate** of the accumulator. It must return truthy; query through the accumulator's API.
-  The test fails if it doesn't. Test one thing per `testing`, so failures are specific.
-- `:timeout-ms` (default 1000) and `:opts` (view options) are optional.
-- A failing reducer or commit makes `gt` throw (`ex-data` has `:phase`).
+1. The first run records the images under `__Snapshots__/` and fails. **Look at every recorded image**
+   (iPhone and iPad).
+2. Compare it with the board's screen (its fields, its `html`/sketch content) and, if the project provides
+   them (see the README), the Figma frame of the screen. Judge whether it is close enough by eye: same
+   content, same structure, styling as the project's `CLAUDE.md` says.
+3. Fix the screen, delete the image, and run again to record it anew. Repeat until it is right.
+4. Commit the images with the slice.
 
-Same rules as above: events from `events.clj`, no commands from other slices, only the view is tested.
+Use fixed ids, values and dates in snapshot tests, so the images don't change between runs.
 
 ## Quality gate
 
 Before marking this slice as `Done`, verify the implementation against slice.json:
 
-- [ ] Every field in the read model / query result definition in slice.json has a field in the output of the `defview` (or in what the persisted accumulator can return) — no invented fields
-- [ ] Every INBOUND event of the read model has a reducer in its `defview` / `defpersistedview` — no events missed or assumed
-- [ ] `defpersistedview` is used only when step 3.0 calls for it
-- [ ] A persisted view: reducers only call `p/-tx-append` (no IO), is tested with `l/gt` and a fresh `:acc` per test, and its `component-map` is registered under `:views` in `system.clj`
-- [ ] Every GWT scenario in `specifications[]` has a corresponding test method
-- [ ] No extra query parameters or filter logic were added beyond what slice.json defines
-- [ ] No field names were assumed or guessed — if a field is not in slice.json, it is not in the code
-- [ ] If there is a screen: the page shows the screen's fields, has a form for every command on the read model's screens, and every form has the `__anti-forgery-token` input
-- [ ] Every form input follows "Inputs per field type" — plain checkboxes, repeated plain names for lists, `date`/`datetime-local` for dates
-- [ ] If there is a screen: the path follows "Routes and paths", and the routes are in the `set/union` in `system.clj`
-- [ ] If there is a scion: it is required in `scions.cljs`
-- [ ] run the slice's own tests only (`clojure -X:test :nses '[{basepackage}.slices.{context}.{slicename}.slice-test]'` — namespace symbols, not strings; strings match nothing and run zero tests)
+- [ ] Every field of the read model in slice.json is in its state (or what the persisted view's queries return) — no invented fields
+- [ ] Every INBOUND event of the read model has exactly one binding — no events missed or assumed
+- [ ] A persisted view is used only when step 3.0 calls for it; its reducers only return operations; its table is a registered migration
+- [ ] Every GWT scenario in `specifications[]` has a corresponding `@Test`
+- [ ] No extra filters or query logic beyond what slice.json defines
+- [ ] If there is a screen: it shows the screen's fields, has a form for every command on the read model's screens, sends them by name, and shows their errors
+- [ ] If there is a screen: navigation after each command follows its `navigation.json`, and every alternative's condition is traceable to the board
+- [ ] If there is a screen: it is registered as `{context}/{slice}` with its parameters, `uses` lists every command and screen it refers to, and it has a `#Preview`
+- [ ] If there is a screen: its snapshot images were recorded, looked at, and compared with the board's screen
+- [ ] The slice doesn't refer to any other slice's types, and `Slices.swift` calls its `register(in:)` (if it has one)
+- [ ] The slice's own tests pass: `scripts/test.sh --only AppCoreTests/{Slice}Tests`

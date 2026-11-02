@@ -1,4 +1,2 @@
 [tools]
-java = "temurin-25"
-clojure = "latest"
 node = "latest"

@@ -2,12 +2,14 @@
 !**/.eventmodelers/install-manifest.json
 .claude/settings.local.json
 node_modules/
-.cpcache/
-.lsp/.cache
-.clj-kondo/.cache
-.nrepl-port
-.shadow-cljs/
-/target
-/public/js/cljs-runtime
-/public/js/scions.js
-/public/js/manifest.edn
+
+# Swift and Xcode
+.build/
+.build-linux/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Secrets (see Config/Secrets.xcconfig.example)
+Config/Secrets.xcconfig

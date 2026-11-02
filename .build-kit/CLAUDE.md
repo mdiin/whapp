@@ -1,42 +1,53 @@
 # Project Configuration
 
-Read events in `src/{basepackage-path}/slices/events.clj` to understand the global structure.
+This is an event-sourced iOS app (iPhone and iPad, iOS 18): SwiftUI, and
+[ledjer-swift](https://github.com/planmdk/ledjer-swift) for events, read models, persisted views and
+automations, with the events in an on-device SQLite database (GRDB). Read `README.md` for how the app is
+put together, and the events in `AppCore/Sources/AppCore/Events/` to understand the global structure.
 
-## The base namespace
+## Names
 
-`{basepackage}` is this project's own namespace prefix, not a fixed value. Resolve it, in order:
+| What | Rule | Example |
+|---|---|---|
+| `{context}` | the context name, kebab-cased | `understanding-eventsourcing` |
+| `{Context}` | the context name, PascalCase | `UnderstandingEventsourcing` |
+| `{slice}` | the slice title, kebab-cased | `add-item` |
+| `{Slice}` | the slice title, PascalCase | `AddItem` |
+| command / screen name | `{context}/{slice}` | `understanding-eventsourcing/add-item` |
 
-1. the namespace of `src/**/system.clj` without `.system` (`dk.planm.gastronak.system` → `dk.planm.gastronak`);
-2. the part before `.slices.` in the namespace of any existing slice.
-
-Never hardcode one. `{basepackage-path}` is the same prefix as a source path: `.` becomes `/` and `-` becomes
-`_` (`dk.planm.gastronak` → `dk/planm/gastronak`). The same `-` → `_` rule applies to every namespace segment
-below it: slice `add-item` in context `understanding-eventsourcing` is namespace
-`{basepackage}.slices.understanding-eventsourcing.add-item.slice` in
-`src/{basepackage-path}/slices/understanding_eventsourcing/add_item/slice.clj`.
+Slices refer to each other's commands and screens only by these names, through the registries — never by
+their Swift types — so slices can be built in any order.
 
 ## File Structure Constraints
 
 - **Strict Path Limitation**: if not instructed otherwise, only check the slice's own directory,
-  `src/{basepackage-path}/slices/{context}/{slicename}/` (`slice.clj`, `scion.cljs`, `shared.cljc`), its test
-  `test/{basepackage-path}/slices/{context}/{slicename}/slice_test.clj`, and the shared files the build skills
-  say to edit: `slices/events.clj`, `system.clj` and `scions.cljs`
-- **Slice Organization**: Each feature/domain should be organized as a separate slice
+  `AppCore/Sources/AppCore/Slices/{Context}/{Slice}/`, its tests
+  `AppCore/Tests/AppCoreTests/Slices/{Context}/{Slice}/`, and the shared files the build skills say to edit:
+  `Events/` (one file per event) and `Events/AllEvents.swift`, `Slices/Slices.swift`,
+  `Slices/{Context}/{Context}.swift`, and for configuration keys `Config/Info.plist` and `Config/Base.xcconfig`
+- **Slice Organization**: Each feature/domain is a separate slice
+- `AppCore/Sources/AppCore/Common/` is project code: never change it while building a slice. If a slice
+  needs something it doesn't offer, the slice is `Blocked` (`/request-feedback`).
+- Never edit `App.xcodeproj`: the app target uses synchronized folders, and everything a slice adds is in the
+  `AppCore` package.
 
 ## Code Standards
 
-- **Language**: Clojure and Clojurescript only
-- **Module System**: standard Clojure namespaces
+- **Language**: Swift 6 (strict concurrency), SwiftUI for screens
+- **Tests**: Swift Testing (`import Testing`, `@Test`), and swift-snapshot-testing for screens
 
 ## Development Guidelines
 
-1. Each slice should be self-contained and focused on a specific domain
+1. Each slice is self-contained and focused on a specific domain
 2. Maintain clear separation of concerns within each slice
-3. Use the library `ledjer` to implement read models (`defview`, or `defpersistedview` where the build skill calls for it), automations (`automation`), and GWT's (`gt` and `gwt`) - see each build skill's own reference to that infrastructure
+3. Use ledjer-swift through the scaffold: `ReadModel` for read models, `PersistedStateView` with a
+   `GRDBAccumulator` where the build skill calls for it, `automation` for automations, and `gwt`/`gt` for
+   the specifications — see each build skill
+4. **Events are never migrated.** Never change an existing event's fields incompatibly: a changed event is a
+   new event type, and the code that used the old one handles both.
 
-Slice names are kebab-cased and all lowercase characters, e.g. "Add item" becomes "add-item".
-
-**Coercion and dates**: the project provides `src/{basepackage-path}/common/coercion.clj` with its one fixed time zone and the transformer every request value is coerced with. Every `DateTime` field is a `:time/instant`, read from and shown in that zone. See "The project's coercion namespace" in the `build-state-change` skill. It is project code: never create or change it while building a slice — if it is missing, the slice is `Blocked`.
+**Time**: the app uses the device's time zone. `Date` fields of the board are `CalendarDate` (a day),
+`DateTime` fields are `Date` (a point in time). See "Field types" in the `build-state-change` skill.
 
 Do not change test files unless explicitly instructed, or the change brings the test in line with slice.json (e.g. step 4's field/spec diff).
 
@@ -64,37 +75,45 @@ When asked to build a slice, always follow this flow:
      - `readmodels` non-empty and `commands` empty → `/build-state-view`
      - `commands` non-empty → `/build-state-change`
      - anything else (e.g. only `events`, or nothing at all) is a modelling error: invoke `/request-feedback` explaining that the slice has no command, read model or processor to build. Do not write any code for it.
+   - A slice with status `Informational` is never built: it only tells the story of the user flow.
 3. Invoke the matching skill and follow its instructions completely. Do not deviate.
 4. **Verify against slice.json**: After the skill completes, check that every command field, event field, and specification in slice.json appears in the implementation. No invented fields — if it is not in slice.json, it must not be in the code. This applies even when the slice was previously `Done` and reappears as `Planned` — never dismiss a mismatch as "already implemented" or harmless drift; diff slice.json against the code field by field and update the code to match every change.
 5. Run the quality checks, in this order:
-   1. **The slice's own tests** — `clojure -X:test :nses '[{basepackage}.slices.{context}.{slicename}.slice-test]'`
-      (namespace symbols, not strings: strings match nothing and run zero tests). They must pass.
-   2. **The system loads** — `clojure -M -e "(require '{basepackage}.system)"`. This is the only check that
-      covers the slice's wiring in `system.clj`, which the slice tests never load. It must succeed.
-   3. **The full suite** — `clojure -X:test`. A failure is yours only if it is caused by what this slice
-      changed (e.g. an event in `events.clj` whose fields changed); fix the code, never another slice's test.
-      Any other failure was there before: record it in `progress.txt` and leave it alone.
+   1. **The slice's own tests** — `scripts/test.sh --only AppCoreTests/{Slice}Tests` (the `@Suite` type's
+      name). They must pass, snapshot tests included, with their images recorded and looked at.
+   2. **The app builds** — `scripts/test.sh --app`. This is the only check that covers the app target. It must
+      succeed.
+   3. **The full suite** — `scripts/test.sh`. It includes `SystemTests`, which load every slice's
+      registration together: a name registered twice, or an event type declared twice, fails there. A failure
+      is yours only if it is caused by what this slice changed (e.g. an event whose fields changed); fix the
+      code, never another slice's test. Any other failure was there before: record it in `progress.txt` and
+      leave it alone. Commands and screens used but not yet registered are only listed, not failures.
 6. If checks 1 and 2 pass and the full suite has no failures caused by this slice, commit with
    `feat: [Slice Name]` and set slice status to `Done`.
+
+All checks run on the iOS simulator `scripts/test.sh` names; never change it while building a slice
+(snapshot images depend on it).
 
 ## Example Slice Structure
 
 ```
-src/{basepackage-path}/
-├── system.clj                               ← add slice's main namespace to the require; add slice's `routes` to the `set/union`, or an automation's `component-map` under `:automations`, or a persisted view's under `:views`
-├── scions.cljs                              ← add slice's scion namespace to the require
-├── common/
-│   ├── coercion.clj                         ← project code, never changed by a slice (see "Coercion and dates")
-│   ├── interceptors.clj                     ← authenticated/authorized interceptors used in routes
-│   └── utils.clj                            ← `url-for-safe`, `->uuid`, ...
-├── slices/
-│   ├── events.clj                           ← namespace containing every event in the system
-│   ├── {context}/                           ← `-` → `_`, e.g. understanding_eventsourcing
-│   │   ├── {slicename}/                     ← read, write and automation slices; `-` → `_`, e.g. add_item
-│   │   │   ├── slice.clj                    ← the main namespace: read models, commands, automations, routes, hiccup go here
-│   │   │   ├── scion.cljs                   ← frontend augmentation code (scions) for the slice, if any
-│   │   │   └── shared.cljc                  ← code shared between slice implementation and frontend, if any
+AppCore/Sources/AppCore/
+├── Common/                                   ← project code, never changed by a slice: AppSystem, registries, LiveValue, ReadModel, ...
+├── Events/
+│   ├── AllEvents.swift                       ← every event type is listed here
+│   └── {Context}/{EventName}.swift           ← one file per event, shared by all slices
+├── Slices/
+│   ├── Slices.swift                          ← one line per slice: `{Context}.{Slice}.register(in: &registry)`
+│   └── {Context}/
+│       ├── {Context}.swift                   ← `enum {Context} {}`
+│       └── {Slice}/
+│           ├── {Slice}.swift                 ← command and handler, read model, automation, `register(in:)`
+│           └── {Slice}Screen.swift           ← the screen and its `#Preview`, for a state view with a screen
 
-test/{basepackage-path}/
-└── slices/{context}/{slicename}/slice_test.clj
+AppCore/Tests/AppCoreTests/
+├── Common/                                   ← tests of the scaffold, and SystemTests over all slices
+├── Support/Snapshots.swift                   ← `assertScreenSnapshots`
+└── Slices/{Context}/{Slice}/
+    ├── {Slice}Tests.swift
+    └── __Snapshots__/                        ← recorded screen images, committed
 ```
