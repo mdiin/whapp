@@ -22,6 +22,16 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
 - Screens use the design tokens: `AppColor.*` for colours and `AppFont.*` for text styles
   (`AppCore/Sources/AppCore/Common/UI/DesignTokens.generated.swift`). No literal colours (`Color(red:)`,
   hex values) and no fixed font sizes in slice code.
+- Lists use the shared components in `AppCore/Sources/AppCore/Common/UI/Components/` (from the Figma
+  "List" page). Use them instead of building a `List`/`ForEach` layout by hand, and never edit them
+  while building a slice:
+  - `ListTable` + `ListTableColumn`: multi-column table (text columns leading, number columns trailing).
+  - `TaggedList` + `TaggedListItem` + `ListTag`: rows with image, title, subtitle, tag, detail, chevron.
+    `ListRowButtonStyle` gives the neutral pressed highlight (never a persistent selection).
+  - `ListHeader` (title, optional count badge, optional trailing segmented control) and
+    `ListLargeTitleHeader` (large title, optional subtitle).
+  - Rules: keep each process's lists separate; columns stay aligned; IDs and units are exact; lists fill
+    their container; no clipped critical data.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
