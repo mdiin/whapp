@@ -16,3 +16,14 @@ is known to be present.
 rules for the self-directed turns a `run --standalone` session gets, and the agent in such a
 session reads it itself when the first one arrives. Leave it alone otherwise — it licenses
 work nobody asked for, which is right for those turns and wrong everywhere else.
+
+## Design system
+
+- Screens use the design tokens: `AppColor.*` for colours and `AppFont.*` for text styles
+  (`AppCore/Sources/AppCore/Common/UI/DesignTokens.generated.swift`). No literal colours (`Color(red:)`,
+  hex values) and no fixed font sizes in slice code.
+- `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
+  hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
+  instead of adding a local constant.
+- Not covered by tokens yet: spacing, corner radius, effects, dark mode. Until they exist, use system
+  defaults rather than inventing values.

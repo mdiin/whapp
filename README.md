@@ -176,6 +176,9 @@ There is no design system, on purpose. The build skills style screens as the pro
 says, so describe the design system there (components, colors, typography, spacing) before building
 screens. Without one, screens use plain system controls.
 
+This project's colours and text styles come from Figma through a generated file; see
+[`scripts/README-tokens.md`](scripts/README-tokens.md).
+
 ## Users and authentication
 
 Not part of the kit: model them on the board if the app has them. A read model that needs the signed-in
