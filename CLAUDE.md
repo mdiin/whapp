@@ -39,6 +39,11 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
     full-width "Enter" button. Disabled is `.disabled(...)`; the grey look is automatic.
   - `AppIconButton(systemImage:, label:)`: round icon-only button (`label` is the accessibility label).
   - `AppButtonStyle` is the style behind them, for a `Button` that needs custom content.
+- Progress uses `AppProgressBar` (Figma "Progressbar" page): `AppProgressBar(completed:of:label:)`, e.g.
+  `AppProgressBar(completed: 2, of: 3, label: "materials received")`, or `AppProgressBar(value:label:)`.
+  Rules: determinate and linear only; the count is in the label and the percentage at the right end;
+  place it below the list title and above the list it summarises; keep it visible while the list is
+  processed (it is the user's checklist, not a loading state); update it per receipt; fill the container.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
