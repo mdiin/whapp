@@ -68,6 +68,9 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   leading image, trailing control such as `AppTableDetail`, `Toggle`, `Stepper`, `DatePicker` or a `Menu`),
   `AppTableActionRow` ("Row - Button"), `AppSectionTitle` and `AppSegmentedControl` (Figma "Table" page).
   Use native controls for the trailing part. For columns of records use `ListTable`, not these.
+- Single-line text input uses `AppTextField("Prompt", text:)` (Figma "Text Field": placeholder, focused,
+  typing with a clear button, value entered), optionally with a `trailing` accessory such as a scan
+  button. Put it inside an `AppGroupedTable`; don't use a bare `TextField` with hand-made styling.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
