@@ -58,6 +58,12 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   subheader, scanner, search) or `.detail` (back and header/subheader, no scanner or search). Pass
   `tabs: AppToolbarTabs(...)` when the sidebar is collapsed (Tabs=On) and nothing when it is expanded
   (Tabs=Off). Give it a clear title/subtitle, relevant actions only, and the full container width.
+- Navigation between the app's main areas uses `AppSidebar` (Figma "Sidebar"): `AppSidebarSection` /
+  `AppSidebarItem` with a `selection` binding. It is the navigation column, not full-screen content: give it
+  its column width (e.g. in a `NavigationSplitView`) and let the content fill the rest. Use the approved
+  destinations (Goods Receipt, Put Away, Stock Overview, Goods Movement, Pick & Pack) in that order, mark
+  the current destination as selected, keep it consistent with the toolbar tabs (expanded sidebar =
+  `Tabs=Off`, collapsed = `Tabs=On`), and remove placeholder labels. Titled sections are expandable.
 - `design/tokens.json` and `DesignTokens.generated.swift` are generated from Figma. Never edit them by
   hand. If a token is missing, add it in Figma and re-run the pipeline in `scripts/README-tokens.md`,
   instead of adding a local constant.
