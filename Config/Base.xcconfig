@@ -1,7 +1,7 @@
 // Build settings shared by Debug and Release. Rename the app here, not in the project file.
 
-PRODUCT_NAME = App
-PRODUCT_BUNDLE_IDENTIFIER = com.example.app
+PRODUCT_NAME = Whapp
+PRODUCT_BUNDLE_IDENTIFIER = com.trifork.whapp
 MARKETING_VERSION = 1.0
 CURRENT_PROJECT_VERSION = 1
 
