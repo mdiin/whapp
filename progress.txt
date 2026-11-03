@@ -69,3 +69,18 @@ Learnings:
 - Assumptions: rejects unknown material first ("does not exist on this PO number"), then already received; board comments on failures/corrections not resolved.
 - Learnings: registering the command enables the Receive material form's button, so its "material" snapshots were re-recorded.
 ---
+## %FT%TZ — Task dd4ee714-f45d-4f2e-b01c-e9237244e624
+
+Slice: (63c20e8b-722d-45f3-91d7-a17705278779)
+Status change: Done
+
+Action taken:
+- AGENT.md and .build-kit/tasks.json were missing; slice already Done, no build action, logged only.
+
+Learnings:
+- none
+---
+
+## 2026-11-03 - View delivery (re-run)
+- Slice was set InProgress again on the board with unchanged definition; code from bd19ff7 already covers the spec. Re-ran slice tests, app build, full suite: all pass. No code changes.
+---

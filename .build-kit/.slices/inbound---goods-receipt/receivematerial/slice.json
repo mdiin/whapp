@@ -1,7 +1,7 @@
 {
   "id": "63c20e8b-722d-45f3-91d7-a17705278779",
   "title": "Receive material",
-  "status": "InProgress",
+  "status": "Done",
   "sliceType": "STATE_CHANGE",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
@@ -272,7 +272,7 @@
       ],
       "then": [
         {
-          "id": "09bd5409-f807-4823-8998-eed3e7ca94e4",
+          "id": "d1618d80-9fd6-43eb-b80d-8ffa6387e7c9",
           "title": "Received materiale can not be edited ",
           "description": "Material has already been received and can no longer be edited",
           "type": "SPEC_ERROR",
@@ -594,7 +594,7 @@
       ],
       "then": [
         {
-          "id": "34834c54-891a-43b2-b0f6-a9a44e7b7726",
+          "id": "be3c6f63-5fdf-4d69-8dfc-4fd9148bc270",
           "title": "A material that was never created on the PO cannot be received",
           "description": "This material does not exist on this PO number",
           "type": "SPEC_ERROR",
