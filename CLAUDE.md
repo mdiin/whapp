@@ -82,8 +82,10 @@ The exported `slice.json` does not contain the link to a screen's Figma frame, b
    `get_node` with the `boardId` from `.eventmodelers/config.json` and that id. Read `meta.pageUrls`
    (e.g. `https://embed.figma.com/design/<fileKey>/<name>?node-id=10434-23117`): `fileKey` is the part
    after `/design/`, and the node id is `node-id` with `-` turned into `:`.
-2. Call the Figma MCP `create_session` for that `fileKey`, then `get_design_context` and `get_screenshot` for
-   the node. The screenshot is the reference.
+2. Call the Figma MCP for that `fileKey`: whichever Figma server is available (tools named
+   `mcp__plugin_figma_figma__*` interactively, `mcp__claude_ai_Figma__*` in headless runs; they have the same
+   functions, so use the one that exists and don't ask). `create_session` first if that server has it, then
+   `get_design_context` and `get_screenshot` for the node. The screenshot is the reference.
 3. Build the screen to match the frame: the same elements, in the same order and place, with the same
    content. Use the shared components listed in the design system section above for every element they
    cover (the frame is made of them), and the `AppColor`/`AppFont` tokens. Do not move, add, drop or
@@ -92,3 +94,18 @@ The exported `slice.json` does not contain the link to a screen's Figma frame, b
 4. When recording snapshots, compare each image with the Figma screenshot, not only with the board.
 5. If a screen has no `pageUrls` (empty or missing), or the Figma call fails, say so in `progress.txt`
    and build from the board data and the shared components. Do not invent a layout silently.
+
+## Feedback lane notes (mandatory for every slice)
+
+The board's Feedback lane holds `MARKDOWN` notes (navigation rules, open questions) that are NOT in the
+exported `slice.json`. Before building or reworking a slice:
+
+1. Find the slice's chapter: `get_nodes` on the slice's id (its `SLICE_BORDER`) gives `parentId`; then
+   `get_board_outline` (`boardId` from `.eventmodelers/config.json`, that `chapterId`) lists the columns
+   with their nodes. The slice's column is the one holding its screen/read model/command.
+2. Read every `MARKDOWN` node in the Feedback lane of that column with `get_nodes`: its text is in
+   `meta.description`. Also read `get_node_comments` of the slice's screens.
+3. Implement what they say. A "# Navigation" note is a requirement (e.g. "Pressing a material navigates the
+   app to the receive material form": the row is a button that navigates to that route, passing the
+   row's key). Notes headed "Open questions" are not requirements: don't build them.
+4. List each note you applied, or ignored and why, in `progress.txt`.
