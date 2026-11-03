@@ -34,6 +34,13 @@ public struct AppRoot: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in apply(phase) }
+        // `scenePhase` may have become .active while booting (ignored then): apply the current one now.
+        .onChange(of: isReady) { _, ready in if ready { apply(scenePhase) } }
+    }
+
+    private var isReady: Bool {
+        if case .ready = boot { return true }
+        return false
     }
 
     private func start() async {
@@ -41,7 +48,6 @@ public struct AppRoot: View {
             let system = try await AppSystem.live(config: config())
             let lifecycle = Lifecycle(system: system)
             boot = .ready(lifecycle)
-            apply(scenePhase)
         } catch {
             boot = .failed(String(describing: error))
         }
