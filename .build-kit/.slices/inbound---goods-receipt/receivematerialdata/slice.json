@@ -1,11 +1,773 @@
 {
   "id": "66b3e7cd-913b-4eb9-8576-35098217f2a4",
   "title": "Receive material data",
-  "status": "Planned",
-  "sliceType": "STATE_VIEW",
+  "status": "InProgress",
+  "sliceType": "TRANSLATION",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
   "ticketNumber": null,
   "assignee": null,
-  "features": null
+  "features": null,
+  "chapter": "Incoming deliveries",
+  "context": "Inbound - Goods Receipt",
+  "commands": [
+    {
+      "id": "a3548f81-b07d-4803-9977-63d042d456fe",
+      "title": "Create material",
+      "type": "COMMAND",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "8830c43a-4bce-4e3c-8ce6-a614d1823505",
+          "type": "INBOUND",
+          "title": "Material creation",
+          "elementType": "AUTOMATION"
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "type": "OUTBOUND",
+          "title": "Material Created",
+          "elementType": "EVENT"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "a3548f81-b07d-4803-9977-63d042d456fe",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "events": [
+    {
+      "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+      "title": "Material Created",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+          "type": "OUTBOUND",
+          "title": "Material lookup",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "a3548f81-b07d-4803-9977-63d042d456fe",
+          "type": "INBOUND",
+          "title": "Create material",
+          "elementType": "COMMAND"
+        },
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "d5fb4a9a-74e2-42c4-b025-81961cc32408",
+          "type": "OUTBOUND",
+          "title": "Materials TODO",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "type": "OUTBOUND",
+          "title": "Deliveries",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Swimlane",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+      "sketched": false,
+      "comments": []
+    },
+    {
+      "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+      "title": "Material Created",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+          "type": "OUTBOUND",
+          "title": "Material lookup",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "a3548f81-b07d-4803-9977-63d042d456fe",
+          "type": "INBOUND",
+          "title": "Create material",
+          "elementType": "COMMAND"
+        },
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "d5fb4a9a-74e2-42c4-b025-81961cc32408",
+          "type": "OUTBOUND",
+          "title": "Materials TODO",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "type": "OUTBOUND",
+          "title": "Deliveries",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Swimlane",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "readmodels": [
+    {
+      "id": "d5fb4a9a-74e2-42c4-b025-81961cc32408",
+      "title": "Materials TODO",
+      "type": "READMODEL",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "2229bbdb-f608-4362-890d-8f4fb3901839",
+          "type": "INBOUND",
+          "title": "Delivery data received from SAP",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "8830c43a-4bce-4e3c-8ce6-a614d1823505",
+          "type": "OUTBOUND",
+          "title": "Material creation",
+          "elementType": "AUTOMATION"
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "type": "INBOUND",
+          "title": "Material Created",
+          "elementType": "EVENT"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": true,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "d5fb4a9a-74e2-42c4-b025-81961cc32408",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "screens": [],
+  "processors": [
+    {
+      "id": "8830c43a-4bce-4e3c-8ce6-a614d1823505",
+      "title": "Material creation",
+      "type": "AUTOMATION",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "a3548f81-b07d-4803-9977-63d042d456fe",
+          "type": "OUTBOUND",
+          "title": "Create material",
+          "elementType": "COMMAND"
+        },
+        {
+          "id": "d5fb4a9a-74e2-42c4-b025-81961cc32408",
+          "type": "INBOUND",
+          "title": "Materials TODO",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Actor",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "8830c43a-4bce-4e3c-8ce6-a614d1823505",
+      "sketched": false,
+      "comments": [
+        "What should happen when a delivery from SAP contains a material that has no name or number, or one we already know?"
+      ]
+    }
+  ],
+  "tables": [],
+  "specifications": [
+    {
+      "id": "b194db39-e817-411a-85c3-649eb1d89489",
+      "title": "PO number and material number combination is unique",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material data",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [
+        {
+          "id": "a3548f81-b07d-4803-9977-63d042d456fe",
+          "title": "Create material",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "8ae3d6e2-8fc8-4c8c-96cb-a33cfd43eb53",
+          "title": "PO number and material number combination is unique",
+          "description": "This material number already exists on this PO number",
+          "type": "SPEC_ERROR",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "id": "7db7d255-d9a0-40eb-b36b-4c75c00a796c",
+      "title": "A new material on a PO is created",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material data",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [],
+      "when": [
+        {
+          "id": "a3548f81-b07d-4803-9977-63d042d456fe",
+          "title": "Create material",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m2"
+            },
+            {
+              "name": "materialName",
+              "example": "Gin 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m2"
+            },
+            {
+              "name": "materialName",
+              "example": "Gin 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    }
+  ],
+  "actors": [],
+  "aggregates": [],
+  "screenImages": [],
+  "comments": []
 }

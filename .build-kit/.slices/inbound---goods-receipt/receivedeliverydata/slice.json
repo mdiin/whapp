@@ -2,7 +2,7 @@
   "id": "7007f799-29cf-48c7-99c3-2772eebfad7a",
   "title": "Receive delivery data",
   "status": "Done",
-  "sliceType": "TRANSLATION",
+  "sliceType": "STATE_VIEW",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
   "ticketNumber": null,

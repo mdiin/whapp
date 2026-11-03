@@ -91,11 +91,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "receivematerialdata",
-      "status": "Planned",
+      "status": "Done",
       "definition": {
         "id": "66b3e7cd-913b-4eb9-8576-35098217f2a4",
         "title": "Receive material data",
-        "status": "Planned"
+        "status": "Done"
       }
     }
   ]

@@ -12,3 +12,9 @@
 - Assumptions: new external event DeliveryDataReceivedFromSAP (materials: Number -> Double); SAP source mocked per board comment (seedMockData at automation start, once per PO); no live service/config needed; command materialNumbers = comma-joined material numbers; duplicate PO reported via onError by the automation.
 - Learnings: String ids can't be tags, so decide(on:) reads unfiltered.
 ---
+
+## 2026-11-03 - Receive material data
+- Translation slice via build-automation: todo ReadModel (SAP event -> one item per material, keyed "po|material"; MaterialCreated removes), Create material handler (rejects duplicate PO+material), automation, 5 tests.
+- Assumptions: item qtyTotal/dateReceived come from the SAP delivery, materialName from material name; no services/config.
+- Learnings: composite keys as "a|b" strings in todo ReadModel.
+---

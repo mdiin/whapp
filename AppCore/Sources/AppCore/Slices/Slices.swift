@@ -8,6 +8,7 @@
 public enum Slices {
     public static func register(in registry: inout Registry) {
         InboundGoodsReceipt.ReceiveDeliveryData.register(in: &registry)
+        InboundGoodsReceipt.ReceiveMaterialData.register(in: &registry)
         InboundGoodsReceipt.ViewDeliveries.register(in: &registry)
     }
 }
