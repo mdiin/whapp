@@ -1,0 +1,2 @@
+- Event structs: `Event, Equatable` required if used in a read-model state. BSD sed needs `-i ''`.
+- ListLargeTitleHeader init is `(title:)`; don't duplicate navigationTitle with it.

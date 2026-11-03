@@ -1,0 +1,8 @@
+## Codebase Patterns
+- Events not in AppCore yet are derived from slice specs (field union); events need `Event, Equatable`.
+- Snapshot images: first run records+fails, run again; ViewThatFits drops columns on iPhone.
+
+## 2026-11-03 - View deliveries
+- ReadModel (not persisted: small data) Deliveries keyed by poNumber; screen with ListTable; 5 spec tests + snapshots.
+- Assumptions: events DeliveryReceived/MaterialCreated/MaterialReceived fields = union of spec fields (all String, materialNumbers optional comma list); delivery shown when all materialNumbers created (or >=1 if none given) and received qty < qtyTotal; sorted newest dateReceived first; route inbound-goods-receipt/view-deliveries; iPhone drops Supplier column.
+---
