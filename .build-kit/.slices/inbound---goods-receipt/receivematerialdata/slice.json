@@ -1,8 +1,8 @@
 {
   "id": "66b3e7cd-913b-4eb9-8576-35098217f2a4",
   "title": "Receive material data",
-  "status": "InProgress",
-  "sliceType": "TRANSLATION",
+  "status": "Done",
+  "sliceType": "STATE_VIEW",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
   "ticketNumber": null,
@@ -681,7 +681,7 @@
       ],
       "then": [
         {
-          "id": "8ae3d6e2-8fc8-4c8c-96cb-a33cfd43eb53",
+          "id": "7f051326-7270-4471-99d9-747446e43da2",
           "title": "PO number and material number combination is unique",
           "description": "This material number already exists on this PO number",
           "type": "SPEC_ERROR",

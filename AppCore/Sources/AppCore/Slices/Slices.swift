@@ -10,5 +10,6 @@ public enum Slices {
         InboundGoodsReceipt.ReceiveDeliveryData.register(in: &registry)
         InboundGoodsReceipt.ReceiveMaterialData.register(in: &registry)
         InboundGoodsReceipt.ViewDeliveries.register(in: &registry)
+        InboundGoodsReceipt.ViewDelivery.register(in: &registry)
     }
 }

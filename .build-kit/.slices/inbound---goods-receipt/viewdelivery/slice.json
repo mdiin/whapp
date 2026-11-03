@@ -1,11 +1,431 @@
 {
   "id": "e81119d4-c01f-41cd-b4ac-aff73564a731",
   "title": "View delivery",
-  "status": "Created",
+  "status": "Done",
   "sliceType": "STATE_VIEW",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
   "ticketNumber": null,
   "assignee": null,
-  "features": null
+  "features": null,
+  "chapter": "Incoming deliveries",
+  "context": "Inbound - Goods Receipt",
+  "commands": [],
+  "events": [
+    {
+      "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+      "title": "Material Received",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "qtyReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Swimlane",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "View delivery",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": true,
+      "linkedId": "9dd512a1-57d4-4144-bb7e-fe5c6fac154e",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "readmodels": [
+    {
+      "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+      "title": "Delivery materials",
+      "type": "READMODEL",
+      "fields": [
+        {
+          "name": "materialName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": [],
+          "mapping": "Delivery received"
+        },
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "isReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "Boolean",
+          "cardinality": "Single",
+          "subfields": [],
+          "mapping": "Material Received"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "type": "INBOUND",
+          "title": "Material Received",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "6cc3b20a-11ec-40d3-b2e5-53b53d1d48e8",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "SCREEN"
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "type": "INBOUND",
+          "title": "Material Created",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "type": "INBOUND",
+          "title": "Delivery received",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "fa760603-dfb7-4af6-8b28-5c3d9a04b9b6",
+          "type": "OUTBOUND",
+          "elementType": "HTML_SCREEN"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "View delivery",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": true,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "5320c5c8-b578-45b1-8963-022d470b439b",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "fa760603-dfb7-4af6-8b28-5c3d9a04b9b6",
+      "title": "",
+      "type": "HTML_SCREEN",
+      "fields": [],
+      "dependencies": [
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "INBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Actor",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "View delivery",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "fa760603-dfb7-4af6-8b28-5c3d9a04b9b6",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "processors": [],
+  "tables": [],
+  "specifications": [
+    {
+      "id": "083d5e38-5a63-4607-a394-9759d8250637",
+      "title": "The materials of a delivery are shown as received or open",
+      "chapter": "Incoming deliveries",
+      "sliceName": "View delivery",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [
+        {
+          "poNumber": "123",
+          "qtyTotal": "24",
+          "isReceived": true,
+          "materialName": "Vodka 70cl",
+          "supplierName": "Nordic Spirits A/S",
+          "materialNumber": "m1"
+        },
+        {
+          "poNumber": "123",
+          "qtyTotal": "24",
+          "isReceived": false,
+          "materialName": "Gin 70cl",
+          "supplierName": "Nordic Spirits A/S",
+          "materialNumber": "m2"
+        }
+      ],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "48"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m2"
+            },
+            {
+              "name": "materialName",
+              "example": "Gin 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "title": "Material Received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "24"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "poNumber",
+              "example": "123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "title": "Delivery materials",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": [],
+          "expectEmptyList": false
+        }
+      ]
+    }
+  ],
+  "actors": [],
+  "aggregates": [],
+  "screenImages": [],
+  "comments": []
 }

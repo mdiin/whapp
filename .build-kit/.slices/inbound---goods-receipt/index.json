@@ -7,11 +7,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "receivematerialform",
-      "status": "Created",
+      "status": "Planned",
       "definition": {
         "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
         "title": "Receive material form",
-        "status": "Created"
+        "status": "Planned"
       }
     },
     {
@@ -21,11 +21,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "receivematerial",
-      "status": "Created",
+      "status": "Planned",
       "definition": {
         "id": "63c20e8b-722d-45f3-91d7-a17705278779",
         "title": "Receive material",
-        "status": "Created"
+        "status": "Planned"
       }
     },
     {
@@ -63,11 +63,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "viewdelivery",
-      "status": "Created",
+      "status": "Done",
       "definition": {
         "id": "e81119d4-c01f-41cd-b4ac-aff73564a731",
         "title": "View delivery",
-        "status": "Created"
+        "status": "Done"
       }
     },
     {

@@ -18,3 +18,20 @@
 - Assumptions: item qtyTotal/dateReceived come from the SAP delivery, materialName from material name; no services/config.
 - Learnings: composite keys as "a|b" strings in todo ReadModel.
 ---
+## 2026-11-03T10:08:19Z — Task 2efb35ab-ff5d-4dcf-89a4-c3161c248a33
+
+Slice: (untitled) (66b3e7cd-913b-4eb9-8576-35098217f2a4)
+Status change: Done
+
+Action taken:
+- Slice reported Done; no build action. tasks.json was missing, so nothing was dequeued.
+
+Learnings:
+- None.
+---
+
+## 2026-11-03 - View delivery
+- State view via build-state-view: ReadModel `Materials` (supplier/created materials/received per PO), items(state, poNumber:) -> rows with isReceived; screen ListTable; route inbound-goods-receipt/view-delivery with `poNumber` parameter; 1 spec test + snapshots.
+- Assumptions: read model filtered by route param poNumber; qtyTotal is the material's (Material Created); received = any Material Received for po+material.
+- Learnings: don't name a type `State` in a slice namespace used by SwiftUI screens (clashes with @State).
+---
