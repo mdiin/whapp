@@ -137,3 +137,19 @@ Learnings:
 ## 2026-11-03 - View delivery (re-run: idAttribute)
 - slice.json only changed idAttribute on poNumber/materialNumber; code already keys on them (Item.id = materialNumber, read model per poNumber). No code changes. Slice tests, app build, full suite pass.
 ---
+
+## 2026-11-03T11:45:08Z — Task 78d01d6f-1743-43a9-ac8e-e70fd3dccf97
+
+Slice: (untitled) (e81119d4-c01f-41cd-b4ac-aff73564a731)
+Status change: Done
+
+Action taken:
+- Slice reported Done; no build action required. .build-kit/tasks.json and AGENT.md did not exist, so nothing to remove/read.
+
+Learnings:
+- None.
+---
+
+## 2026-11-03 - View deliveries (rework)
+- Re-planned for screen comment "Tapping a delivery must navigate to the view delivery page": already implemented (TaggedList onSelect -> inbound-goods-receipt/view-delivery with poNumber). Own tests, app build, full suite pass.
+---
