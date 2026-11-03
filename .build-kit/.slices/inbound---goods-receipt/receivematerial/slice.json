@@ -1,11 +1,610 @@
 {
   "id": "63c20e8b-722d-45f3-91d7-a17705278779",
   "title": "Receive material",
-  "status": "Planned",
+  "status": "InProgress",
   "sliceType": "STATE_CHANGE",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
   "ticketNumber": null,
   "assignee": null,
-  "features": null
+  "features": null,
+  "chapter": "Incoming deliveries",
+  "context": "Inbound - Goods Receipt",
+  "commands": [
+    {
+      "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+      "title": "Receive material",
+      "type": "COMMAND",
+      "fields": [
+        {
+          "name": "qtyReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "type": "OUTBOUND",
+          "title": "Material Received",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "c8b60b67-b0d3-4707-a9ef-788231228fcb",
+          "type": "INBOUND",
+          "elementType": "HTML_SCREEN"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+      "sketched": false,
+      "comments": [
+        "Can receiving a material fail, and what does the user see when they try to change a material that is already received?",
+        "A received material can't be changed — what should someone do who typed the wrong quantity?"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+      "title": "Material Received",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "qtyReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+          "type": "INBOUND",
+          "title": "Receive material",
+          "elementType": "COMMAND"
+        },
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Swimlane",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "readmodels": [],
+  "screens": [],
+  "processors": [],
+  "tables": [],
+  "specifications": [
+    {
+      "id": "9331da3a-e173-4873-aa6c-dd95c56a4ed8",
+      "title": "Received materiale can not be edited ",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "title": "Material Received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "24"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "poNumber",
+              "example": "123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [
+        {
+          "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+          "title": "Receive material",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "30"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "poNumber",
+              "example": "123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "09bd5409-f807-4823-8998-eed3e7ca94e4",
+          "title": "Received materiale can not be edited ",
+          "description": "Material has already been received and can no longer be edited",
+          "type": "SPEC_ERROR",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "id": "09a109e3-029e-49ae-840e-318d22d376b5",
+      "title": "Quantity received can be greater than expected quantity",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "po123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "dn123"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "42"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "po123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "42"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "mn123"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [
+        {
+          "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+          "title": "Receive material",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "45"
+            },
+            {
+              "name": "materialNumber",
+              "example": "mn123"
+            },
+            {
+              "name": "poNumber",
+              "example": "po123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "title": "Material Received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "45"
+            },
+            {
+              "name": "materialNumber",
+              "example": "mn123"
+            },
+            {
+              "name": "poNumber",
+              "example": "po123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    },
+    {
+      "id": "9b3af3ec-3a4f-4560-ad28-b53983c211ef",
+      "title": "Quantity received can be less than expected quantity",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "po123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "dn123"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "42"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "po123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "42"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "mn123"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [
+        {
+          "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+          "title": "Receive material",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "21"
+            },
+            {
+              "name": "materialNumber",
+              "example": "mn123"
+            },
+            {
+              "name": "poNumber",
+              "example": "po123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "title": "Material Received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "21"
+            },
+            {
+              "name": "materialNumber",
+              "example": "mn123"
+            },
+            {
+              "name": "poNumber",
+              "example": "po123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    },
+    {
+      "id": "441f5d41-25d1-462a-ae1c-5c7166b7be3c",
+      "title": "A material that was never created on the PO cannot be received",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [
+        {
+          "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+          "title": "Receive material",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m9"
+            },
+            {
+              "name": "qtyReceived",
+              "example": "24"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "34834c54-891a-43b2-b0f6-a9a44e7b7726",
+          "title": "A material that was never created on the PO cannot be received",
+          "description": "This material does not exist on this PO number",
+          "type": "SPEC_ERROR",
+          "fields": []
+        }
+      ]
+    }
+  ],
+  "actors": [],
+  "aggregates": [],
+  "screenImages": [],
+  "comments": []
 }

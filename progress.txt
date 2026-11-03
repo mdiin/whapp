@@ -52,3 +52,20 @@ Learnings:
 - Assumptions: receive-material slice.json had no command fields, so payload = MaterialReceived fields (poNumber, materialNumber, qtyReceived); no navigation.json -> stay on screen and clear form; Delivery received binding is a no-op.
 - Learnings: AppTableDetail takes LocalizedStringKey and shows a chevron unless drillIn: false.
 ---
+## 2026-11-03T10:44:41Z — Task 7515e800-bd76-4e21-b10e-fa0f59dbbcac
+
+Slice: (untitled) (84601a38-441a-44b1-9f19-88d30a1e71e5)
+Status change: Done
+
+Action taken:
+- Slice reported Done on the board; no build action. AGENT.md and .build-kit/tasks.json were missing, so nothing to dequeue.
+
+Learnings:
+- none
+---
+
+## 2026-11-03 - Receive material
+- State change via build-state-change: command inbound-goods-receipt/receive-material, ReadModel of created/received "po|material" keys, 4 spec tests (3 rejections/accepts as per slice specs).
+- Assumptions: rejects unknown material first ("does not exist on this PO number"), then already received; board comments on failures/corrections not resolved.
+- Learnings: registering the command enables the Receive material form's button, so its "material" snapshots were re-recorded.
+---

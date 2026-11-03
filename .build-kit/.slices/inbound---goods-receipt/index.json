@@ -21,11 +21,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "receivematerial",
-      "status": "Planned",
+      "status": "InProgress",
       "definition": {
         "id": "63c20e8b-722d-45f3-91d7-a17705278779",
         "title": "Receive material",
-        "status": "Planned"
+        "status": "InProgress"
       }
     },
     {
