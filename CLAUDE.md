@@ -72,3 +72,23 @@ work nobody asked for, which is right for those turns and wrong everywhere else.
   instead of adding a local constant.
 - Not covered by tokens yet: spacing, corner radius, effects, dark mode. Until they exist, use system
   defaults rather than inventing values.
+
+## Figma reference for screens (mandatory for slices with a screen)
+
+The exported `slice.json` does not contain the link to a screen's Figma frame, but the board does: every
+`HTML_SCREEN` node has it in `meta.pageUrls`. Before writing or changing any SwiftUI screen:
+
+1. For each screen in the slice's `slice.json` (`screens[].id`), call the eventmodelers MCP
+   `get_node` with the `boardId` from `.eventmodelers/config.json` and that id. Read `meta.pageUrls`
+   (e.g. `https://embed.figma.com/design/<fileKey>/<name>?node-id=10434-23117`): `fileKey` is the part
+   after `/design/`, and the node id is `node-id` with `-` turned into `:`.
+2. Call the Figma MCP `create_session` for that `fileKey`, then `get_design_context` and `get_screenshot` for
+   the node. The screenshot is the reference.
+3. Build the screen to match the frame: the same elements, in the same order and place, with the same
+   content. Use the shared components listed in the design system section above for every element they
+   cover (the frame is made of them), and the `AppColor`/`AppFont` tokens. Do not move, add, drop or
+   replace elements, and do not pick other components. Treat the `get_design_context` code as a
+   reference only, never copy it.
+4. When recording snapshots, compare each image with the Figma screenshot, not only with the board.
+5. If a screen has no `pageUrls` (empty or missing), or the Figma call fails, say so in `progress.txt`
+   and build from the board data and the shared components. Do not invent a layout silently.
