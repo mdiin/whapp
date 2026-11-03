@@ -1,0 +1,11 @@
+{
+  "id": "66b3e7cd-913b-4eb9-8576-35098217f2a4",
+  "title": "Receive material data",
+  "status": "Planned",
+  "sliceType": "STATE_VIEW",
+  "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
+  "contextName": "Inbound - Goods Receipt",
+  "ticketNumber": null,
+  "assignee": null,
+  "features": null
+}

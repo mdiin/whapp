@@ -7,6 +7,7 @@
 /// This is the one shared file a slice adds a line to (besides `Events/AllEvents.swift` for its events).
 public enum Slices {
     public static func register(in registry: inout Registry) {
+        InboundGoodsReceipt.ReceiveDeliveryData.register(in: &registry)
         InboundGoodsReceipt.ViewDeliveries.register(in: &registry)
     }
 }

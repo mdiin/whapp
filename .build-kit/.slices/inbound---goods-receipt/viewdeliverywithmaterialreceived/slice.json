@@ -1,0 +1,11 @@
+{
+  "id": "569a60e8-961c-4d45-a228-f807695e0c36",
+  "title": "View delivery with material received",
+  "status": "Informational",
+  "sliceType": "STATE_VIEW",
+  "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
+  "contextName": "Inbound - Goods Receipt",
+  "ticketNumber": null,
+  "assignee": null,
+  "features": null
+}

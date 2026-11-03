@@ -6,3 +6,9 @@
 - ReadModel (not persisted: small data) Deliveries keyed by poNumber; screen with ListTable; 5 spec tests + snapshots.
 - Assumptions: events DeliveryReceived/MaterialCreated/MaterialReceived fields = union of spec fields (all String, materialNumbers optional comma list); delivery shown when all materialNumbers created (or >=1 if none given) and received qty < qtyTotal; sorted newest dateReceived first; route inbound-goods-receipt/view-deliveries; iPhone drops Supplier column.
 ---
+
+## 2026-11-03 - Receive delivery data
+- Translation slice built via build-automation: todo ReadModel (SAP event -> item, DeliveryReceived removes), Receive delivery handler (rejects duplicate PO), automation, 5 tests.
+- Assumptions: new external event DeliveryDataReceivedFromSAP (materials: Number -> Double); SAP source mocked per board comment (seedMockData at automation start, once per PO); no live service/config needed; command materialNumbers = comma-joined material numbers; duplicate PO reported via onError by the automation.
+- Learnings: String ids can't be tags, so decide(on:) reads unfiltered.
+---

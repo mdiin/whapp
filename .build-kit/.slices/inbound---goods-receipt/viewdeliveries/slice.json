@@ -1,0 +1,874 @@
+{
+  "id": "4b2be6ce-5ded-4d49-865a-c848db6e31f3",
+  "title": "View deliveries",
+  "status": "Done",
+  "sliceType": "STATE_VIEW",
+  "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
+  "contextName": "Inbound - Goods Receipt",
+  "ticketNumber": null,
+  "assignee": null,
+  "features": null,
+  "chapter": "Incoming deliveries",
+  "context": "Inbound - Goods Receipt",
+  "commands": [],
+  "events": [],
+  "readmodels": [
+    {
+      "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+      "title": "Deliveries",
+      "type": "READMODEL",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "type": "INBOUND",
+          "title": "Delivery received",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "type": "INBOUND",
+          "title": "Material Created",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "523142e9-cd68-4fd0-8764-7a4165ed3470",
+          "type": "OUTBOUND",
+          "elementType": "HTML_SCREEN"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "View deliveries",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": true,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "a93945ff-de1b-49b2-a110-79df14ab37df",
+      "sketched": false,
+      "comments": [
+        "Should a delivery whose materials are not yet created in the system show up on the incoming list, or only once its materials exist?",
+        "When do we know that all materials of delivery have been created? It feels like we need some kind of marker."
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "id": "523142e9-cd68-4fd0-8764-7a4165ed3470",
+      "title": "",
+      "type": "HTML_SCREEN",
+      "fields": [],
+      "dependencies": [
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "type": "INBOUND",
+          "title": "Deliveries",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Actor",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "View deliveries",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "523142e9-cd68-4fd0-8764-7a4165ed3470",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "processors": [],
+  "tables": [],
+  "specifications": [
+    {
+      "id": "eb9b3f82-1983-4db3-9ef5-4e51240682bc",
+      "title": "Sort by date ",
+      "chapter": "Incoming deliveries",
+      "sliceName": "View deliveries",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [
+        {
+          "poNumber": "124",
+          "qtyTotal": "24",
+          "dateReceived": "2026-10-20",
+          "supplierName": "Nordic Spirits A/S",
+          "deliveryNumber": "D-1002"
+        },
+        {
+          "poNumber": "125",
+          "qtyTotal": "24",
+          "dateReceived": "2026-10-19",
+          "supplierName": "Nordic Spirits A/S",
+          "deliveryNumber": "D-1003"
+        },
+        {
+          "poNumber": "123",
+          "qtyTotal": "24",
+          "dateReceived": "2026-10-18",
+          "supplierName": "Nordic Spirits A/S",
+          "deliveryNumber": "D-1001"
+        }
+      ],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-18"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-18"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "124"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1002"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-20"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "124"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-20"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m3"
+            },
+            {
+              "name": "materialName",
+              "example": "Rum 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "125"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1003"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "125"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m4"
+            },
+            {
+              "name": "materialName",
+              "example": "Whisky 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "title": "Deliveries",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": [
+            {
+              "name": "poNumber"
+            },
+            {
+              "name": "deliveryNumber"
+            },
+            {
+              "name": "supplierName"
+            },
+            {
+              "name": "qtyTotal"
+            },
+            {
+              "name": "dateReceived"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    },
+    {
+      "id": "a15f8452-8c10-4c3b-a20d-5fccc3cb3223",
+      "title": "Fully received deliveries are not shown",
+      "chapter": "Incoming deliveries",
+      "sliceName": "View deliveries",
+      "vertical": false,
+      "expectEmptyList": true,
+      "examples": [],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": true
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": true
+        },
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "title": "Material Received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "24"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "poNumber",
+              "example": "123"
+            }
+          ],
+          "expectEmptyList": true
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "title": "Deliveries",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": [
+            {
+              "name": "poNumber"
+            },
+            {
+              "name": "deliveryNumber"
+            },
+            {
+              "name": "supplierName"
+            },
+            {
+              "name": "qtyTotal"
+            },
+            {
+              "name": "dateReceived"
+            }
+          ],
+          "expectEmptyList": true
+        }
+      ]
+    },
+    {
+      "id": "853ace66-83a9-4d3a-9528-fa0e7f9f5104",
+      "title": "Partially received deliveries are shown",
+      "chapter": "Incoming deliveries",
+      "sliceName": "View deliveries",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [
+        {
+          "poNumber": "123",
+          "qtyTotal": "48",
+          "dateReceived": "2026-10-19",
+          "supplierName": "Nordic Spirits A/S",
+          "deliveryNumber": "D-1001"
+        }
+      ],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "48"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m2"
+            },
+            {
+              "name": "materialName",
+              "example": "Gin 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "4995a04f-9c52-4a26-8e15-241ccdace8e3",
+          "title": "Material Received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "qtyReceived",
+              "example": "24"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "poNumber",
+              "example": "123"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "title": "Deliveries",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": [
+            {
+              "name": "poNumber"
+            },
+            {
+              "name": "deliveryNumber"
+            },
+            {
+              "name": "supplierName"
+            },
+            {
+              "name": "qtyTotal"
+            },
+            {
+              "name": "dateReceived"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    },
+    {
+      "id": "5deb4e2c-ca73-4039-b67b-040d0821053b",
+      "title": "Deliveries with materials still being created are not shown",
+      "chapter": "Incoming deliveries",
+      "sliceName": "View deliveries",
+      "vertical": false,
+      "expectEmptyList": true,
+      "examples": [],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "materialNumbers",
+              "example": "m1,m2"
+            }
+          ],
+          "expectEmptyList": true
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            }
+          ],
+          "expectEmptyList": true
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "title": "Deliveries",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": [],
+          "expectEmptyList": true
+        }
+      ]
+    },
+    {
+      "id": "230767ea-16b7-4af2-9bcd-eb2e0d566d33",
+      "title": "Delivery appears once all its materials are created",
+      "chapter": "Incoming deliveries",
+      "sliceName": "View deliveries",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [
+        {
+          "poNumber": "123",
+          "qtyTotal": "48",
+          "dateReceived": "2026-10-19",
+          "supplierName": "Nordic Spirits A/S",
+          "deliveryNumber": "D-1001"
+        }
+      ],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "48"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumbers",
+              "example": "m1,m2"
+            }
+          ]
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            }
+          ]
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m2"
+            }
+          ]
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "title": "Deliveries",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": []
+        }
+      ]
+    }
+  ],
+  "actors": [],
+  "aggregates": [],
+  "screenImages": [],
+  "comments": []
+}

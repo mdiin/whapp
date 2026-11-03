@@ -1,0 +1,1009 @@
+{
+  "id": "7007f799-29cf-48c7-99c3-2772eebfad7a",
+  "title": "Receive delivery data",
+  "status": "Done",
+  "sliceType": "TRANSLATION",
+  "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
+  "contextName": "Inbound - Goods Receipt",
+  "ticketNumber": null,
+  "assignee": null,
+  "features": null,
+  "chapter": "Incoming deliveries",
+  "context": "Inbound - Goods Receipt",
+  "commands": [
+    {
+      "id": "d929c8bb-c389-492c-8917-5ad951fae889",
+      "title": "Receive delivery",
+      "type": "COMMAND",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumbers",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "List",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "7fbf2ab8-13ee-45df-9519-fa998e969114",
+          "type": "INBOUND",
+          "title": "Delivery receiver",
+          "elementType": "AUTOMATION"
+        },
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "type": "OUTBOUND",
+          "title": "Delivery received",
+          "elementType": "EVENT"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive delivery data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "d929c8bb-c389-492c-8917-5ad951fae889",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "events": [
+    {
+      "id": "2229bbdb-f608-4362-890d-8f4fb3901839",
+      "title": "Delivery data received from SAP",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materials",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "Custom",
+          "cardinality": "List",
+          "subfields": [
+            {
+              "pii": false,
+              "tag": false,
+              "name": "materialNumber",
+              "type": "String",
+              "query": false,
+              "optional": false,
+              "generated": false,
+              "cardinality": "Single",
+              "idAttribute": false,
+              "showAttributes": false,
+              "technicalAttribute": false
+            },
+            {
+              "pii": false,
+              "tag": false,
+              "name": "qty",
+              "type": "Number",
+              "query": false,
+              "optional": false,
+              "generated": false,
+              "cardinality": "Single",
+              "idAttribute": false,
+              "showAttributes": false,
+              "technicalAttribute": false
+            },
+            {
+              "pii": false,
+              "tag": false,
+              "name": "name",
+              "type": "String",
+              "query": false,
+              "optional": false,
+              "generated": false,
+              "cardinality": "Single",
+              "idAttribute": false,
+              "showAttributes": false,
+              "technicalAttribute": false
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "130538e1-5adb-4b1d-a771-e8cefdd70914",
+          "type": "OUTBOUND",
+          "title": "Delivery Data TODO",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "d5fb4a9a-74e2-42c4-b025-81961cc32408",
+          "type": "OUTBOUND",
+          "title": "Materials TODO",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "SAP",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive delivery data",
+      "description": "# Data from SAP\n\nThis data contains the SAP data about a Purchase Order (Delivery? see note)\n\nWe have confirmation that the information drawn from this external event in the two read models projecting it is available.\n\n## Delivery contains list of Materials\n\nWe translate this to internal data such that we have a bit finer granularity on the data in the system than what SAP provides.",
+      "context": "EXTERNAL",
+      "elementContext": "EXTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "2229bbdb-f608-4362-890d-8f4fb3901839",
+      "sketched": false,
+      "comments": [
+        "What happens when the data from SAP is incomplete (e.g. no supplier or no materials)?"
+      ]
+    },
+    {
+      "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+      "title": "Delivery received",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumbers",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "List",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+          "type": "OUTBOUND",
+          "title": "Material lookup",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "type": "OUTBOUND",
+          "title": "Deliveries",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "d929c8bb-c389-492c-8917-5ad951fae889",
+          "type": "INBOUND",
+          "title": "Receive delivery",
+          "elementType": "COMMAND"
+        },
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "130538e1-5adb-4b1d-a771-e8cefdd70914",
+          "type": "OUTBOUND",
+          "title": "Delivery Data TODO",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Swimlane",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive delivery data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+      "sketched": false,
+      "comments": []
+    },
+    {
+      "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+      "title": "Delivery received",
+      "type": "EVENT",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumbers",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "List",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+          "type": "OUTBOUND",
+          "title": "Material lookup",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "a93945ff-de1b-49b2-a110-79df14ab37df",
+          "type": "OUTBOUND",
+          "title": "Deliveries",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "d929c8bb-c389-492c-8917-5ad951fae889",
+          "type": "INBOUND",
+          "title": "Receive delivery",
+          "elementType": "COMMAND"
+        },
+        {
+          "id": "5320c5c8-b578-45b1-8963-022d470b439b",
+          "type": "OUTBOUND",
+          "title": "Delivery materials",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "130538e1-5adb-4b1d-a771-e8cefdd70914",
+          "type": "OUTBOUND",
+          "title": "Delivery Data TODO",
+          "elementType": "READMODEL"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Swimlane",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive delivery data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "readmodels": [
+    {
+      "id": "130538e1-5adb-4b1d-a771-e8cefdd70914",
+      "title": "Delivery Data TODO",
+      "type": "READMODEL",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumbers",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "List",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "2229bbdb-f608-4362-890d-8f4fb3901839",
+          "type": "INBOUND",
+          "title": "Delivery data received from SAP",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "7fbf2ab8-13ee-45df-9519-fa998e969114",
+          "type": "OUTBOUND",
+          "title": "Delivery receiver",
+          "elementType": "AUTOMATION"
+        },
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "type": "INBOUND",
+          "title": "Delivery received",
+          "elementType": "EVENT"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive delivery data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "130538e1-5adb-4b1d-a771-e8cefdd70914",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "screens": [],
+  "processors": [
+    {
+      "id": "7fbf2ab8-13ee-45df-9519-fa998e969114",
+      "title": "Delivery receiver",
+      "type": "AUTOMATION",
+      "fields": [
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "deliveryNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "supplierName",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "dateReceived",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumbers",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "List",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "130538e1-5adb-4b1d-a771-e8cefdd70914",
+          "type": "INBOUND",
+          "title": "Delivery Data TODO",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "d929c8bb-c389-492c-8917-5ad951fae889",
+          "type": "OUTBOUND",
+          "title": "Receive delivery",
+          "elementType": "COMMAND"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Actor",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive delivery data",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "7fbf2ab8-13ee-45df-9519-fa998e969114",
+      "sketched": false,
+      "comments": [
+        "What happens if SAP sends the same delivery twice, or sends a changed version of a delivery we have already received?"
+      ]
+    }
+  ],
+  "tables": [],
+  "specifications": [
+    {
+      "id": "e1644157-bbb7-4c50-b43d-47decc9c5cc3",
+      "title": "PO number is unique — a delivery can only be received once per PO number",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive delivery data",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "48"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [
+        {
+          "id": "d929c8bb-c389-492c-8917-5ad951fae889",
+          "title": "Receive delivery",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1002"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-20"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "4cd5b3a3-b69d-43db-962d-e32c3ec6c680",
+          "title": "PO number is unique — a delivery can only be received once per PO number",
+          "description": "A delivery has already been received for this PO number",
+          "type": "SPEC_ERROR",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "id": "59ae3d07-bcaf-418c-b9fb-3d4b04b7ce2c",
+      "title": "A delivery from SAP is received",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive delivery data",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [],
+      "given": [],
+      "when": [
+        {
+          "id": "d929c8bb-c389-492c-8917-5ad951fae889",
+          "title": "Receive delivery",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "COMMAND",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "48"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "then": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "48"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    }
+  ],
+  "actors": [],
+  "aggregates": [],
+  "screenImages": [],
+  "comments": [
+    "For this slice, mock some data instead of trying to get the external SAP event from somewhere."
+  ]
+}

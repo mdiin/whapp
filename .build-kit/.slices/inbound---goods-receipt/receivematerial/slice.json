@@ -1,0 +1,11 @@
+{
+  "id": "63c20e8b-722d-45f3-91d7-a17705278779",
+  "title": "Receive material",
+  "status": "Created",
+  "sliceType": "STATE_CHANGE",
+  "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
+  "contextName": "Inbound - Goods Receipt",
+  "ticketNumber": null,
+  "assignee": null,
+  "features": null
+}

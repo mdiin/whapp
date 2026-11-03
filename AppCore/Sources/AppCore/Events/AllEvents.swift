@@ -7,6 +7,7 @@ import Ledjer
 /// duplicate is caught by the test suite instead.
 public enum AllEvents {
     public static let types: [any Event.Type] = [
+        DeliveryDataReceivedFromSAP.self,
         DeliveryReceived.self,
         MaterialCreated.self,
         MaterialReceived.self,
