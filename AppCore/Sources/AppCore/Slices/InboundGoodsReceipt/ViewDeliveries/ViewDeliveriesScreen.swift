@@ -8,6 +8,7 @@ extension InboundGoodsReceipt.ViewDeliveries {
         let system: AppSystem
         @Environment(Navigator.self) private var navigator: Navigator?
         @State private var live: LiveValue<[String: Entry]>
+        @State private var query = ""
 
         init(system: AppSystem) {
             self.init(system: system, live: LiveValue(system, model))
@@ -21,15 +22,18 @@ extension InboundGoodsReceipt.ViewDeliveries {
 
         var body: some View {
             content
-                .navigationTitle("Deliveries")
                 .task { await live.run() }
         }
 
         @ViewBuilder private var content: some View {
             if let entries = live.value {
-                let deliveries = items(entries)
+                let all = items(entries)
+                let deliveries = query.isEmpty ? all : all.filter {
+                    [$0.poNumber, $0.deliveryNumber, $0.supplierName].contains { $0.localizedCaseInsensitiveContains(query) }
+                }
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
+                        AppToolbar(.overview, title: "Deliveries", search: $query)
                         ListHeader("Incoming", badge: deliveries.count)
                             .padding(.horizontal)
                         // Rows are tappable and open the delivery (ListTable has no row action).

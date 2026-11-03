@@ -1,7 +1,7 @@
 {
   "id": "4b2be6ce-5ded-4d49-865a-c848db6e31f3",
   "title": "View deliveries",
-  "status": "Planned",
+  "status": "Done",
   "sliceType": "STATE_VIEW",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",

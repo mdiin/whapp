@@ -116,3 +116,20 @@ Learnings:
 ## 2026-11-03 - Receive material form (re-run)
 - Slice already implemented; re-checked. Figma frame (node 10500:23678) could not be fetched: Figma MCP not authorized in this session, so screen kept as built from board data + shared components. Tests/app build re-run.
 ---
+## 2026-11-03T11:32:35Z — Task 75e2b572-829b-48db-a2e9-6695b7387b04
+
+Slice: (untitled) (84601a38-441a-44b1-9f19-88d30a1e71e5)
+Status change: Done
+
+Action taken:
+- No build action needed for Done. Logged only. AGENT.md and .build-kit/tasks.json were missing, so nothing was dequeued.
+
+Learnings:
+- None.
+---
+
+## 2026-11-03 - View deliveries (rework: toolbar)
+- Added AppToolbar(.overview, search) to the screen with client-side search filter (PO/delivery/supplier); removed navigationTitle (duplicate heading); re-recorded snapshots.
+- Figma MCP not authorized in this session: no pageUrls/frame checked; built from board data and shared components (noted per CLAUDE.md).
+- Learnings: changed screens need the old snapshot PNGs deleted to re-record; macOS sed needs `-i ''`.
+---
