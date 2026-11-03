@@ -153,3 +153,7 @@ Learnings:
 ## 2026-11-03 - View deliveries (rework)
 - Re-planned for screen comment "Tapping a delivery must navigate to the view delivery page": already implemented (TaggedList onSelect -> inbound-goods-receipt/view-delivery with poNumber). Own tests, app build, full suite pass.
 ---
+
+## 2026-11-03 - Receive material form (re-run)
+- Slice re-planned with no content change: diffed slice.json vs code (read model fields, spec) - already matching. Slice tests, app build, full suite pass. Marked Done.
+---
