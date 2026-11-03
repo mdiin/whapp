@@ -1,5 +1,15 @@
 # Project Configuration
 
+## Read first: board information that is NOT in slice.json
+
+For every slice, including one re-planned with an unchanged `slice.json`, "Done" in the board, or a
+"no definition change" result of the diff against the code: the sections "Figma reference for screens" and
+"Feedback lane notes" below are part of the definition. A slice is not finished, and may not be reported as
+"already implemented" or "no code changes", until you have fetched the screen's Figma frame and the
+Feedback-lane notes of its column, and compared the code with them (screen layout, components, navigation).
+Re-planning often happens *because* a board note or Figma frame changed, which `slice.json` cannot show.
+Write what you fetched and the differences you found to `progress.txt`, and fix the code for each one.
+
 This project can have more than one eventmodelers agent kit installed at once — typically
 one backend stack plus the modeling kit, working side by side on the same board. Each
 installed kit ships its own CLAUDE.md with that kit's own responsibilities. Check which
