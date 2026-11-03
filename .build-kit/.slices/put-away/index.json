@@ -1,0 +1,74 @@
+{
+  "slices": [
+    {
+      "id": "574172dd-ef02-42c7-a456-2077ab779874",
+      "slice": "View materials to put away",
+      "index": 0,
+      "contextName": "Put Away",
+      "contextSlug": "put-away",
+      "folder": "viewmaterialstoputaway",
+      "status": "Created",
+      "definition": {
+        "id": "574172dd-ef02-42c7-a456-2077ab779874",
+        "title": "View materials to put away",
+        "status": "Created"
+      }
+    },
+    {
+      "id": "e5b668bb-4b99-41d5-a247-a9cbb3ad768a",
+      "slice": "View material to put away",
+      "index": 1,
+      "contextName": "Put Away",
+      "contextSlug": "put-away",
+      "folder": "viewmaterialtoputaway",
+      "status": "Created",
+      "definition": {
+        "id": "e5b668bb-4b99-41d5-a247-a9cbb3ad768a",
+        "title": "View material to put away",
+        "status": "Created"
+      }
+    },
+    {
+      "id": "3c00a1e7-10c6-458c-b647-0f5046f119e0",
+      "slice": "Put away material",
+      "index": 2,
+      "contextName": "Put Away",
+      "contextSlug": "put-away",
+      "folder": "putawaymaterial",
+      "status": "Created",
+      "definition": {
+        "id": "3c00a1e7-10c6-458c-b647-0f5046f119e0",
+        "title": "Put away material",
+        "status": "Created"
+      }
+    },
+    {
+      "id": "c50c3cab-3396-4d82-8020-066750f4c4d2",
+      "slice": "View remaining materials",
+      "index": 3,
+      "contextName": "Put Away",
+      "contextSlug": "put-away",
+      "folder": "viewremainingmaterials",
+      "status": "Informational",
+      "definition": {
+        "id": "c50c3cab-3396-4d82-8020-066750f4c4d2",
+        "title": "View remaining materials",
+        "status": "Informational"
+      }
+    },
+    {
+      "id": "57b35108-5474-4496-b8d7-313fcde0818f",
+      "slice": "View default material location",
+      "index": 4,
+      "contextName": "Put Away",
+      "contextSlug": "put-away",
+      "folder": "viewdefaultmateriallocation",
+      "status": "Created",
+      "definition": {
+        "id": "57b35108-5474-4496-b8d7-313fcde0818f",
+        "title": "View default material location",
+        "status": "Created"
+      }
+    }
+  ]
+}

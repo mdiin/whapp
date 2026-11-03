@@ -11,5 +11,6 @@ public enum Slices {
         InboundGoodsReceipt.ReceiveMaterialData.register(in: &registry)
         InboundGoodsReceipt.ViewDeliveries.register(in: &registry)
         InboundGoodsReceipt.ViewDelivery.register(in: &registry)
+        InboundGoodsReceipt.ReceiveMaterialForm.register(in: &registry)
     }
 }

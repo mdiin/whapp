@@ -1,11 +1,251 @@
 {
   "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
   "title": "Receive material form",
-  "status": "Planned",
+  "status": "InProgress",
   "sliceType": "STATE_VIEW",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
   "ticketNumber": null,
   "assignee": null,
-  "features": null
+  "features": null,
+  "chapter": "Incoming deliveries",
+  "context": "Inbound - Goods Receipt",
+  "commands": [],
+  "events": [],
+  "readmodels": [
+    {
+      "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+      "title": "Material lookup",
+      "type": "READMODEL",
+      "fields": [
+        {
+          "name": "qtyTotal",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": false,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "materialNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        },
+        {
+          "name": "poNumber",
+          "optional": false,
+          "showAttributes": false,
+          "technicalAttribute": false,
+          "query": false,
+          "generated": false,
+          "edited": false,
+          "idAttribute": true,
+          "tag": false,
+          "type": "String",
+          "cardinality": "Single",
+          "subfields": []
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "type": "INBOUND",
+          "title": "Delivery received",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "type": "INBOUND",
+          "title": "Material Created",
+          "elementType": "EVENT"
+        },
+        {
+          "id": "c8b60b67-b0d3-4707-a9ef-788231228fcb",
+          "type": "OUTBOUND",
+          "elementType": "HTML_SCREEN"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Interaction",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material form",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "c8b60b67-b0d3-4707-a9ef-788231228fcb",
+      "title": "",
+      "type": "HTML_SCREEN",
+      "fields": [],
+      "dependencies": [
+        {
+          "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+          "type": "INBOUND",
+          "title": "Material lookup",
+          "elementType": "READMODEL"
+        },
+        {
+          "id": "aae7f79b-55bf-4120-8524-af7cc82b882a",
+          "type": "OUTBOUND",
+          "title": "Receive material",
+          "elementType": "COMMAND"
+        }
+      ],
+      "modelContext": "Inbound - Goods Receipt",
+      "lane": "Actor",
+      "aggregate": "default",
+      "aggregateDependencies": [],
+      "triggers": [],
+      "tags": [],
+      "slice": "Receive material form",
+      "description": "",
+      "context": "INTERNAL",
+      "elementContext": "INTERNAL",
+      "listElement": false,
+      "todoList": false,
+      "createsAggregate": false,
+      "elementCopy": false,
+      "linkedId": "c8b60b67-b0d3-4707-a9ef-788231228fcb",
+      "sketched": false,
+      "comments": []
+    }
+  ],
+  "processors": [],
+  "tables": [],
+  "specifications": [
+    {
+      "id": "ead5b216-fda9-496c-9b3d-157c1a43e496",
+      "title": "A material created on a delivery can be looked up for receiving",
+      "chapter": "Incoming deliveries",
+      "sliceName": "Receive material form",
+      "vertical": false,
+      "expectEmptyList": false,
+      "examples": [
+        {
+          "poNumber": "123",
+          "qtyTotal": "24",
+          "materialNumber": "m1"
+        }
+      ],
+      "given": [
+        {
+          "id": "36beb7c4-2845-45de-9ace-a27f5f08f7cc",
+          "title": "Delivery received",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "deliveryNumber",
+              "example": "D-1001"
+            },
+            {
+              "name": "supplierName",
+              "example": "Nordic Spirits A/S"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            }
+          ],
+          "expectEmptyList": false
+        },
+        {
+          "id": "ff8cf097-9489-4f86-88d0-43a7f7c559f8",
+          "title": "Material Created",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "EVENT",
+          "fields": [
+            {
+              "name": "poNumber",
+              "example": "123"
+            },
+            {
+              "name": "qtyTotal",
+              "example": "24"
+            },
+            {
+              "name": "dateReceived",
+              "example": "2026-10-19"
+            },
+            {
+              "name": "materialNumber",
+              "example": "m1"
+            },
+            {
+              "name": "materialName",
+              "example": "Vodka 70cl"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ],
+      "when": [],
+      "then": [
+        {
+          "id": "0effb5f4-0a4a-43e3-b2d9-d042de52ad4d",
+          "title": "Material lookup",
+          "tags": [],
+          "index": 0,
+          "specRow": 0,
+          "type": "READMODEL",
+          "fields": [
+            {
+              "name": "qtyTotal"
+            },
+            {
+              "name": "materialNumber"
+            },
+            {
+              "name": "poNumber"
+            }
+          ],
+          "expectEmptyList": false
+        }
+      ]
+    }
+  ],
+  "actors": [],
+  "aggregates": [],
+  "screenImages": [],
+  "comments": []
 }

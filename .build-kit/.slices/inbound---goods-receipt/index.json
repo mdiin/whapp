@@ -7,11 +7,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "receivematerialform",
-      "status": "Planned",
+      "status": "Done",
       "definition": {
         "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
         "title": "Receive material form",
-        "status": "Planned"
+        "status": "Done"
       }
     },
     {

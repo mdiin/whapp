@@ -1,0 +1,10 @@
+{
+  "id": "3c00a1e7-10c6-458c-b647-0f5046f119e0",
+  "title": "Put away material",
+  "status": "Created",
+  "sliceType": "STATE_CHANGE",
+  "contextName": "Put Away",
+  "ticketNumber": null,
+  "assignee": null,
+  "features": null
+}

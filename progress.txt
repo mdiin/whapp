@@ -35,3 +35,20 @@ Learnings:
 - Assumptions: read model filtered by route param poNumber; qtyTotal is the material's (Material Created); received = any Material Received for po+material.
 - Learnings: don't name a type `State` in a slice namespace used by SwiftUI screens (clashes with @State).
 ---
+## 2026-11-03T10:38:21Z — Task 703e5471-0c59-4b95-b090-f0d93ef54248
+
+Slice: (untitled) (e81119d4-c01f-41cd-b4ac-aff73564a731)
+Status change: Done
+
+Action taken:
+- Slice reported Done on the board. No build action. AGENT.md and .build-kit/tasks.json do not exist, so nothing to remove from the queue.
+
+Learnings:
+- Payload had sliceTitle null; tasks.json can be absent even when a task is passed inline.
+---
+
+## 2026-11-03 - Receive material form
+- State view via build-state-view: ReadModel `Material lookup` (key "po|material" -> qtyTotal), screen with material number/received QTY form sending inbound-goods-receipt/receive-material; route inbound-goods-receipt/receive-material-form (poNumber param); 1 spec test + 2 snapshot tests.
+- Assumptions: receive-material slice.json had no command fields, so payload = MaterialReceived fields (poNumber, materialNumber, qtyReceived); no navigation.json -> stay on screen and clear form; Delivery received binding is a no-op.
+- Learnings: AppTableDetail takes LocalizedStringKey and shows a chevron unless drillIn: false.
+---
