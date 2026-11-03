@@ -1,23 +1,9 @@
 {
   "slices": [
     {
-      "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
-      "slice": "Receive material form",
-      "index": 0,
-      "contextName": "Inbound - Goods Receipt",
-      "contextSlug": "inbound---goods-receipt",
-      "folder": "receivematerialform",
-      "status": "Done",
-      "definition": {
-        "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
-        "title": "Receive material form",
-        "status": "Done"
-      }
-    },
-    {
       "id": "63c20e8b-722d-45f3-91d7-a17705278779",
       "slice": "Receive material",
-      "index": 1,
+      "index": 0,
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "receivematerial",
@@ -29,17 +15,31 @@
       }
     },
     {
+      "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
+      "slice": "Receive material form",
+      "index": 1,
+      "contextName": "Inbound - Goods Receipt",
+      "contextSlug": "inbound---goods-receipt",
+      "folder": "receivematerialform",
+      "status": "Done",
+      "definition": {
+        "id": "84601a38-441a-44b1-9f19-88d30a1e71e5",
+        "title": "Receive material form",
+        "status": "Done"
+      }
+    },
+    {
       "id": "4b2be6ce-5ded-4d49-865a-c848db6e31f3",
       "slice": "View deliveries",
       "index": 2,
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "viewdeliveries",
-      "status": "Done",
+      "status": "Planned",
       "definition": {
         "id": "4b2be6ce-5ded-4d49-865a-c848db6e31f3",
         "title": "View deliveries",
-        "status": "Done"
+        "status": "Planned"
       }
     },
     {
@@ -63,11 +63,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "viewdelivery",
-      "status": "Done",
+      "status": "Planned",
       "definition": {
         "id": "e81119d4-c01f-41cd-b4ac-aff73564a731",
         "title": "View delivery",
-        "status": "Done"
+        "status": "Planned"
       }
     },
     {

@@ -100,3 +100,19 @@ Learnings:
 - Board comment: tapping a delivery must open the view delivery page. Replaced ListTable with TaggedList (ListTable has no row action and can't be edited); onSelect navigates via optional `Navigator` environment to inbound-goods-receipt/view-delivery (poNumber); registry.uses(route:). Snapshots re-recorded.
 - Learnings: `@Environment(Navigator.self) var navigator: Navigator?` keeps snapshot hosts working without a Navigator.
 ---
+
+## 2026-11-03 — Task 3944576f-186b-4d88-b3d4-22ab57673936
+
+Slice: View deliveries (4b2be6ce-5ded-4d49-865a-c848db6e31f3)
+Status change: Done
+
+Action taken:
+- Slice reported Done on the board; no build action. .build-kit/tasks.json and AGENT.md were missing, so nothing to dequeue.
+
+Learnings:
+- None.
+---
+
+## 2026-11-03 - Receive material form (re-run)
+- Slice already implemented; re-checked. Figma frame (node 10500:23678) could not be fetched: Figma MCP not authorized in this session, so screen kept as built from board data + shared components. Tests/app build re-run.
+---
