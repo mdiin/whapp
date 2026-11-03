@@ -63,11 +63,11 @@
       "contextName": "Inbound - Goods Receipt",
       "contextSlug": "inbound---goods-receipt",
       "folder": "viewdelivery",
-      "status": "Planned",
+      "status": "Done",
       "definition": {
         "id": "e81119d4-c01f-41cd-b4ac-aff73564a731",
         "title": "View delivery",
-        "status": "Planned"
+        "status": "Done"
       }
     },
     {

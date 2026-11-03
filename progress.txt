@@ -133,3 +133,7 @@ Learnings:
 - Figma MCP not authorized in this session: no pageUrls/frame checked; built from board data and shared components (noted per CLAUDE.md).
 - Learnings: changed screens need the old snapshot PNGs deleted to re-record; macOS sed needs `-i ''`.
 ---
+
+## 2026-11-03 - View delivery (re-run: idAttribute)
+- slice.json only changed idAttribute on poNumber/materialNumber; code already keys on them (Item.id = materialNumber, read model per poNumber). No code changes. Slice tests, app build, full suite pass.
+---
