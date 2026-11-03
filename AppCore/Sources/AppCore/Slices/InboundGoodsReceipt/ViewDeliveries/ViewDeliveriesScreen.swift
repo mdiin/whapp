@@ -6,6 +6,7 @@ import SwiftUI
 extension InboundGoodsReceipt.ViewDeliveries {
     struct Screen: View {
         let system: AppSystem
+        @Environment(Navigator.self) private var navigator: Navigator?
         @State private var live: LiveValue<[String: Entry]>
 
         init(system: AppSystem) {
@@ -31,23 +32,17 @@ extension InboundGoodsReceipt.ViewDeliveries {
                     VStack(alignment: .leading, spacing: 0) {
                         ListHeader("Incoming", badge: deliveries.count)
                             .padding(.horizontal)
-                        // The table never clips a value: on a narrow screen (iPhone) the supplier column
-                        // is dropped so PO, delivery number, quantity and date stay readable.
-                        ViewThatFits(in: .horizontal) {
-                            ListTable(deliveries, columns: [
-                                .init("PO") { $0.poNumber },
-                                .init("Del. No.") { $0.deliveryNumber },
-                                .init("Supplier") { $0.supplierName },
-                                .init("QTY", kind: .number) { $0.qtyTotal },
-                                .init("Received") { $0.dateReceived },
-                            ])
-                            ListTable(deliveries, columns: [
-                                .init("PO") { $0.poNumber },
-                                .init("Del. No.") { $0.deliveryNumber },
-                                .init("QTY", kind: .number) { $0.qtyTotal },
-                                .init("Received") { $0.dateReceived },
-                            ])
-                        }
+                        // Rows are tappable and open the delivery (ListTable has no row action).
+                        TaggedList(deliveries.map { item in
+                            TaggedListItem(id: item.poNumber, title: "PO \(item.poNumber) · \(item.deliveryNumber)",
+                                           subtitle: "\(item.supplierName) · \(item.dateReceived)",
+                                           detail: item.qtyTotal)
+                        }, onSelect: { item in
+                            navigator?.navigate(to: Route("inbound-goods-receipt/view-delivery",
+                                                          ["poNumber": .string(item.id)]))
+                        }, leading: { _ in
+                            Image(systemName: "shippingbox").font(.title2).foregroundStyle(AppColor.textSecondary)
+                        })
                     }
                 }
             } else if let failure = live.failure {

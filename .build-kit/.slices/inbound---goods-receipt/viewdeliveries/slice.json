@@ -1,7 +1,7 @@
 {
   "id": "4b2be6ce-5ded-4d49-865a-c848db6e31f3",
   "title": "View deliveries",
-  "status": "Done",
+  "status": "InProgress",
   "sliceType": "STATE_VIEW",
   "contextId": "c2584a6e-942f-4367-b8b4-b6e200ccf1bc",
   "contextName": "Inbound - Goods Receipt",
@@ -26,7 +26,7 @@
           "query": false,
           "generated": false,
           "edited": false,
-          "idAttribute": false,
+          "idAttribute": true,
           "tag": false,
           "type": "String",
           "cardinality": "Single",
@@ -124,10 +124,7 @@
       "elementCopy": false,
       "linkedId": "a93945ff-de1b-49b2-a110-79df14ab37df",
       "sketched": false,
-      "comments": [
-        "Should a delivery whose materials are not yet created in the system show up on the incoming list, or only once its materials exist?",
-        "When do we know that all materials of delivery have been created? It feels like we need some kind of marker."
-      ]
+      "comments": []
     }
   ],
   "screens": [
@@ -160,7 +157,9 @@
       "elementCopy": false,
       "linkedId": "523142e9-cd68-4fd0-8764-7a4165ed3470",
       "sketched": false,
-      "comments": []
+      "comments": [
+        "Tapping a delivery here must navigate to the view delivery page."
+      ]
     }
   ],
   "processors": [],

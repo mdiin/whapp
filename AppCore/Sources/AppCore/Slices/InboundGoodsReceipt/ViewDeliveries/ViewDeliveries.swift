@@ -61,6 +61,7 @@ extension InboundGoodsReceipt {
         }
 
         static func register(in registry: inout Registry) {
+            registry.uses(route: "inbound-goods-receipt/view-delivery", from: name)
             registry.route(name, title: "Deliveries") { _, system in
                 Screen(system: system)
             }

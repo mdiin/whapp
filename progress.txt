@@ -84,3 +84,19 @@ Learnings:
 ## 2026-11-03 - View delivery (re-run)
 - Slice was set InProgress again on the board with unchanged definition; code from bd19ff7 already covers the spec. Re-ran slice tests, app build, full suite: all pass. No code changes.
 ---
+## 2026-11-03T10:58:59Z — Task 2b974281-c6e4-477b-9c3b-dca86c69360f
+
+Slice: (untitled) (e81119d4-c01f-41cd-b4ac-aff73564a731)
+Status change: Done
+
+Action taken:
+- Slice reported Done on the board; no build action. AGENT.md and .build-kit/tasks.json were missing, so nothing to dequeue.
+
+Learnings:
+- None.
+---
+
+## 2026-11-03 - View deliveries (rework: navigation)
+- Board comment: tapping a delivery must open the view delivery page. Replaced ListTable with TaggedList (ListTable has no row action and can't be edited); onSelect navigates via optional `Navigator` environment to inbound-goods-receipt/view-delivery (poNumber); registry.uses(route:). Snapshots re-recorded.
+- Learnings: `@Environment(Navigator.self) var navigator: Navigator?` keeps snapshot hosts working without a Navigator.
+---
